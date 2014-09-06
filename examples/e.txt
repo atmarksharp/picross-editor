@@ -1,0 +1,29 @@
+# the line starts with a sharp is a comment
+
+# sizes (W: width, H: height)
+W = 8
+H = 8
+
+# numbers on the left side (from up to down)
+LEFT:
+4
+2 2
+2 2
+8
+--- 4 --- # the line starts with hyphen is also a comment (use for separator)
+2
+2 2
+2 2
+4
+
+# numbers on the up side (from left to right)
+UP:
+4
+6
+2 1 2
+1 1 1
+--- 4 ---
+1 1 1
+2 1 2
+3 2
+2 1

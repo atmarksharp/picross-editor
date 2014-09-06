@@ -23,7 +23,9 @@
   </target>
 
   <target name="run">
-    <java classname="${main-class}" classpath="${build}/classes" classpathref="lib.path.id"/>
+    <java classname="${main-class}" classpath="${build}/classes" classpathref="lib.path.id">
+      <arg value="examples/e.txt"/>
+    </java>
   </target>
 
   <target name="compile-run" depends="compile,run">
