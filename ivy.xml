@@ -1,0 +1,11 @@
+<ivy-module version="2.0">
+    <info organisation="" module="picross-editor"/>
+
+    <configurations>
+      <conf name="web"/>
+    </configurations>
+
+    <dependencies>
+        <dependency org="org.apache.commons" name="commons-lang3" rev="3.3.2" conf="web->default"/>
+    </dependencies>
+</ivy-module>
