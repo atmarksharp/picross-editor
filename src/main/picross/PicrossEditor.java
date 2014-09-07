@@ -1,3 +1,6 @@
+package picross;
+
+import java.util.List;
 import java.util.ArrayList;
 import java.util.regex.*;
 
@@ -10,14 +13,15 @@ public class PicrossEditor {
     private String[] files;
     private String[] opts;
     private Picross picross;
+    private boolean showParseResult = false;
 
     class Picross {
         public int width;
         public int height;
-        public int[][] left;
-        public int[][] up;
+        public List<List<Integer>> left;
+        public List<List<Integer>> up;
 
-        public Picross(int _width, int _height, int[][] _left, int[][] _up){
+        public Picross(int _width, int _height, List<List<Integer>> _left, List<List<Integer>> _up){
             width = _width;
             height = _height;
             left = _left;
@@ -38,9 +42,35 @@ public class PicrossEditor {
     }
 
     private void help(){
+        println("");
         println("usage: picross-editor [options] [file]");
         println("options:");
         println("  -h | --help     show help");
+        println("");
+    }
+
+    private String listToString(List<List<Integer>> list){
+        StringBuffer sb = new StringBuffer();
+        String splitter;
+
+        for (List<Integer> row : list) {
+            splitter = "";
+            for (Integer i : row) {
+                sb.append(splitter);
+                sb.append(String.valueOf(i));
+                splitter = " ";
+            }
+            sb.append("\n");
+        }
+
+        return sb.toString();
+    }
+
+    private void printParseResult(Picross p){
+        println(String.format("W = %d", p.width));
+        println(String.format("H = %d", p.height));
+        println(String.format("LEFT:\n%s", listToString(p.left)));
+        println(String.format("UP:\n%s", listToString(p.up)));
     }
 
     private String removeComment(String s){
@@ -59,6 +89,14 @@ public class PicrossEditor {
         return ret;
     }
 
+    private void applyArray(String current, List<List<Integer>> list, Picross p){
+        if(current.equals("LEFT")){
+            p.left = list;
+        }else if(current.equals("UP")){
+            p.up = list;
+        }
+    }
+
     private Picross parse(String filename){
         File file = new File(filename);
 
@@ -73,10 +111,7 @@ public class PicrossEditor {
         FileReader fr = null;
         BufferedReader br = null;
 
-        int width = null;
-        int height = null;
-        int[][] left = null;
-        int[][] up = null;
+        Picross p = new Picross(-1,-1,null,null);
 
         try {
             fr = new FileReader(file);
@@ -84,65 +119,77 @@ public class PicrossEditor {
 
             String assign = "^([WH])\\s+=\\s+(0|[1-9][0-9]+)$";
             String arrayStart = "^(LEFT|UP)\\s*:";
-            String nums = "^(?:0|[1-9][0-9]+)(?:[ ](?:0|[1-9][0-9]+))*$"
+            String nums = "^(?:0|[1-9][0-9]+)(?:[ ](?:0|[1-9][0-9]+))*$";
             Pattern assignRegex = Pattern.compile("^([WH])\\s+=\\s+(0|[1-9][0-9]+)$");
             Pattern arrayStartRegex = Pattern.compile("^(LEFT|UP)\\s*:");
             Pattern numSplitRegex = Pattern.compile(" ");
 
             String current = null;
-            ArrayList<ArrayList<Integer>> list = null
+            List<List<Integer>> list = null;
 
             String line;
             int linenum = -1;
+
             while ((line = br.readLine()) != null) {
                 ++linenum;
                 line = line.trim();
                 line = removeComment(line);
+
+                // ex. "W = 10"
                 if(Pattern.matches(assign, line)){
+                    applyArray(current, list, p);
+                    list = null;
+                    current = null;
+
                     Matcher m = assignRegex.matcher(line);
                     if(m.group(0).equals("W")){
-                        width = Integer.parseInt(m.group(1));
+                        p.width = Integer.parseInt(m.group(1));
                     }else if(m.group(0).equals("H")){
-                        height = Integer.parseInt(m.group(1));
+                        p.height = Integer.parseInt(m.group(1));
                     }else{
-                        printParseError(String.format("Parameter %s does not exist", m.group(1)), linenum)
+                        printParseError(String.format("Parameter %s does not exist", m.group(1)), linenum);
                     }
+
+                // ex. "LEFT :"
                 }else if(Pattern.matches(arrayStart, line)){
-                    Matcher m = arrayStart.matcher(line);
+                    applyArray(current, list, p);
+                    list = null;
+                    current = null;
+
+                    Matcher m = arrayStartRegex.matcher(line);
                     if(m.group(0).equals("LEFT") || m.group(0).equals("UP")){
                         current = m.group(0);
-                        list = new ArrayList<ArrayList<Integer>>();
+                        list = new ArrayList<List<Integer>>();
                     }
+
+                // ex. "1 2 4"
                 }else if(Pattern.matches(nums, line)){
+                    if(current == null){
+                        printParseError("Syntax error", linenum);
+                        System.exit(1);
+                    }
+
                     String[] strs = numSplitRegex.split(line);
-                    ArrayList<Integer> arr = new ArrayList<Integer>();
+                    List<Integer> row = new ArrayList<Integer>();
                     for (String s : strs) {
-                        arr.add(Integer.parseInt(s));
+                        row.add(Integer.parseInt(s));
                     }
-                    list.add(arr);
-                }else if(line.equals("")){
-                    if(current != null){
-                        int[][] nums = new int[][](list.size());
-                        for (int i = 0; i < list.size(); i++) {
-                            ArrayList<Integer> l = list.get(i)
-                            int[] arr = new int[](l.size());
-                            for (int n = 0; n < l.size(); n++) {
-                                arr[n] = l.get(n); 
-                            }
-                            nums[i] = arr;
-                        }
+                    list.add(row);
 
-                        if(current.equals("LEFT")){
-                            left = nums;
-                        }else if(current.equals("UP")){
-                            up = nums;
-                        }
+                // ex. "--- # this line is skipped "
+                }else if(line.trim().equals("")){
+                    /* skip */
 
-                        list = null;
-                        current = null;
-                    }
+                // invalid
+                }else{
+                    printParseError("Syntax error", linenum);
+                    System.exit(1);
                 }
             }
+
+            applyArray(current, list, p);
+            list = null;
+            current = null;
 
         }catch(IOException e){
             System.err.println(e);
@@ -157,17 +204,21 @@ public class PicrossEditor {
             }
         }
 
-        return new Picross(width, height, left, up);
+        return p;
     }
 
     public PicrossEditor(String[] files, String[] opts){
         if(files.length == 0){
             help();
             System.exit(0);
-        }else if(opts.length > 1){
-            if(opts[0] == "-h" || opts[0] == "--help"){
+        }
+
+        if(opts.length > 0){
+            if(opts[0].equals("-h") || opts[0].equals("--help")){
                 help();
-                System.exit(0);
+                System.exit(1);
+            }else if(opts[0].equals("-r") || opts[0].equals("--parse-result")){
+                showParseResult = true;
             }else{
                 printerr("option " + opts[0] + " is invalid.");
                 printerr("");
@@ -175,8 +226,13 @@ public class PicrossEditor {
                 System.exit(1);
             }
         }
-
+        
         picross = parse(files[0]);
+
+        if(showParseResult){
+            printParseResult(picross);
+            System.exit(0);
+        }
     }
 
     public static void main(String[] args) {
