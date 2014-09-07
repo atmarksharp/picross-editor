@@ -10,10 +10,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 public class PicrossEditor {
-    private String[] files;
-    private String[] opts;
-    private Picross picross;
-    private boolean showParseResult = false;
+    protected String[] files;
+    protected String[] opts;
+    protected Picross picross;
+    protected boolean showParseResult = false;
 
     class Picross {
         public int width;
@@ -29,19 +29,19 @@ public class PicrossEditor {
         }
     }
 
-    private void printerr(String s){
+    protected void printerr(Object s){
         System.err.println(s);
     }
 
-    private void println(String s){
+    protected void println(Object s){
         System.out.println(s);
     }
 
-    private void printParseError(String s, int n){
+    protected void printParseError(String s, int n){
         printerr(String.format("Syntax Error (line: %d): %s", n, s));
     }
 
-    private void help(){
+    protected void help(){
         println("");
         println("usage: picross-editor [options] [file]");
         println("options:");
@@ -49,7 +49,7 @@ public class PicrossEditor {
         println("");
     }
 
-    private String listToString(List<List<Integer>> list){
+    protected String listToString(List<List<Integer>> list){
         StringBuffer sb = new StringBuffer();
         String splitter;
 
@@ -66,38 +66,37 @@ public class PicrossEditor {
         return sb.toString();
     }
 
-    private void printParseResult(Picross p){
+    protected void printParseResult(Picross p){
         println(String.format("W = %d", p.width));
         println(String.format("H = %d", p.height));
+        println("");
         println(String.format("LEFT:\n%s", listToString(p.left)));
         println(String.format("UP:\n%s", listToString(p.up)));
     }
 
-    private String removeComment(String s){
-        String ret = s;
+    protected String removeComment(String _s){
+        String s = _s;
         int p1 = s.indexOf("#");
         if(p1 > -1){
-            int p = p1 == 0 ? 0 : p1 -1;
-            ret = s.substring(0,p);
+            s = s.substring(0, p1);
         }
         int p2 = s.indexOf("-");
         if(p2 > -1){
-            int p = p1 == 0 ? 0 : p1 -1;
-            ret = s.substring(0,p);
+            s = s.substring(0, p2);
         }
 
-        return ret;
+        return s.trim();
     }
 
-    private void applyArray(String current, List<List<Integer>> list, Picross p){
-        if(current.equals("LEFT")){
+    protected void applyArray(String current, List<List<Integer>> list, Picross p){
+        if(current != null && current.equals("LEFT")){
             p.left = list;
-        }else if(current.equals("UP")){
+        }else if(current != null && current.equals("UP")){
             p.up = list;
         }
     }
 
-    private Picross parse(String filename){
+    protected Picross parse(String filename){
         File file = new File(filename);
 
         if(!file.exists()){
@@ -117,18 +116,18 @@ public class PicrossEditor {
             fr = new FileReader(file);
             br = new BufferedReader(fr);
 
-            String assign = "^([WH])\\s+=\\s+(0|[1-9][0-9]+)$";
+            String assign = "^([WH])\\s*=\\s*(0|[1-9][0-9]*)$";
             String arrayStart = "^(LEFT|UP)\\s*:";
-            String nums = "^(?:0|[1-9][0-9]+)(?:[ ](?:0|[1-9][0-9]+))*$";
-            Pattern assignRegex = Pattern.compile("^([WH])\\s+=\\s+(0|[1-9][0-9]+)$");
-            Pattern arrayStartRegex = Pattern.compile("^(LEFT|UP)\\s*:");
+            String nums = "^(?:0|[1-9][0-9]*)(?:[ ](?:0|[1-9][0-9]*))*$";
+            Pattern assignRegex = Pattern.compile(assign);
+            Pattern arrayStartRegex = Pattern.compile(arrayStart);
             Pattern numSplitRegex = Pattern.compile(" ");
 
             String current = null;
             List<List<Integer>> list = null;
 
             String line;
-            int linenum = -1;
+            int linenum = 0;
 
             while ((line = br.readLine()) != null) {
                 ++linenum;
@@ -142,10 +141,12 @@ public class PicrossEditor {
                     current = null;
 
                     Matcher m = assignRegex.matcher(line);
-                    if(m.group(0).equals("W")){
-                        p.width = Integer.parseInt(m.group(1));
-                    }else if(m.group(0).equals("H")){
-                        p.height = Integer.parseInt(m.group(1));
+                    m.find();
+
+                    if(m.group(1).equals("W")){
+                        p.width = Integer.parseInt(m.group(2));
+                    }else if(m.group(1).equals("H")){
+                        p.height = Integer.parseInt(m.group(2));
                     }else{
                         printParseError(String.format("Parameter %s does not exist", m.group(1)), linenum);
                     }
@@ -157,8 +158,10 @@ public class PicrossEditor {
                     current = null;
 
                     Matcher m = arrayStartRegex.matcher(line);
-                    if(m.group(0).equals("LEFT") || m.group(0).equals("UP")){
-                        current = m.group(0);
+                    m.find();
+
+                    if(m.group(1).equals("LEFT") || m.group(1).equals("UP")){
+                        current = m.group(1);
                         list = new ArrayList<List<Integer>>();
                     }
 
@@ -206,6 +209,8 @@ public class PicrossEditor {
 
         return p;
     }
+
+    protected PicrossEditor(){} // for debug
 
     public PicrossEditor(String[] files, String[] opts){
         if(files.length == 0){

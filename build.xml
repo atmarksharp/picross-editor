@@ -19,7 +19,7 @@
   </target>
 
   <!-- test -->
-  <target name="test" depends="compile">
+  <target name="test" depends="compile-for-debug">
     <junit printsummary="yes">
       <classpath>
         <pathelement path="${build}/classes"/>
@@ -36,13 +36,19 @@
     </junit>
   </target>
 
-  <!-- compile -->
-  <target name="compile" depends="resolve">
+  <target name="compile-for-debug" depends="resolve">
     <mkdir dir="${build}/classes" />
-    <javac srcdir="${src}" destdir="${build}/classes" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
+    <javac srcdir="${src}" destdir="${build}/classes" debug="on" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
 
     <mkdir dir="${build}/test"/>
-    <javac srcdir="${test}" destdir="${build}/test" classpath="${build}/classes" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
+    <javac srcdir="${test}" destdir="${build}/test" debug="on" classpath="${build}/classes" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
+  </target>
+
+  <!-- compile -->
+  <target name="compile" depends="resolve">
+    <delete dir="${build}"/>
+    <mkdir dir="${build}/classes" />
+    <javac srcdir="${src}" destdir="${build}/classes" optimize="3" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
   </target>
 
   <!-- run -->
