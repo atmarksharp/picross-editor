@@ -9,19 +9,25 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import javax.swing.*;
+
 public class PicrossEditor {
     protected String[] files;
     protected String[] opts;
     protected Picross picross;
     protected boolean showParseResult = false;
+    protected JFrame window;
+    protected JMenu menu;
 
     class Picross {
+        public String title;
         public int width;
         public int height;
         public List<List<Integer>> left;
         public List<List<Integer>> up;
 
-        public Picross(int _width, int _height, List<List<Integer>> _left, List<List<Integer>> _up){
+        public Picross(String _title, int _width, int _height, List<List<Integer>> _left, List<List<Integer>> _up){
+            title = _title;
             width = _width;
             height = _height;
             left = _left;
@@ -96,6 +102,46 @@ public class PicrossEditor {
         }
     }
 
+    protected void printFileFormatError(String message, String filename){
+        printerr(String.format("[%s] %s", filename, message));
+    }
+
+    protected boolean isValid(Picross p, String filename){
+        boolean flag = true;
+
+        if(p.width <= 0){
+            printFileFormatError("W (width) should be \"> 0\"", filename);
+            flag = false;
+        }
+
+        if(p.height <= 0){
+            printFileFormatError("H (height) should be \"> 0\"", filename);
+            flag = false;
+        }
+
+        if(p.left == null){
+            printFileFormatError("Parameter \"LEFT\" is missing", filename);
+            flag = false;
+        }
+
+        if(p.up == null){
+            printFileFormatError("Parameter \"UP\" is missing", filename);
+            flag = false;
+        }
+
+        if(p.width != p.up.size()){
+            printFileFormatError("Size of W (width) and UP should be the same", filename);
+            flag = false;
+        }
+
+        if(p.height != p.left.size()){
+            printFileFormatError("Size of H (height) and LEFT should be the same", filename);
+            flag = false;
+        }
+
+        return flag;
+    }
+
     protected Picross parse(String filename){
         File file = new File(filename);
 
@@ -110,7 +156,7 @@ public class PicrossEditor {
         FileReader fr = null;
         BufferedReader br = null;
 
-        Picross p = new Picross(-1,-1,null,null);
+        Picross p = new Picross(filename,-1,-1,null,null);
 
         try {
             fr = new FileReader(file);
@@ -207,7 +253,21 @@ public class PicrossEditor {
             }
         }
 
+        if(!isValid(p, filename)){
+            System.exit(1);
+        }
+
         return p;
+    }
+
+    protected void createWindow(){
+        window = new JFrame("Picross Editor");
+    }
+
+    protected void initWindow(){
+        if(window == null){
+            createWindow();
+        }
     }
 
     protected PicrossEditor(){} // for debug
@@ -238,6 +298,8 @@ public class PicrossEditor {
             printParseResult(picross);
             System.exit(0);
         }
+
+        initWindow();
     }
 
     public static void main(String[] args) {

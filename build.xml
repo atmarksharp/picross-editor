@@ -93,7 +93,7 @@
   <!-- run-jar -->
   <target name="clean">
     <delete dir="${build}"/>
-    <delete dir="${lib}"/>
+    <!-- <delete dir="${lib}"/> -->
   </target>
 
 </project>
