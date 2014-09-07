@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class PicrossEditor {
     protected String[] files;
@@ -17,7 +18,7 @@ public class PicrossEditor {
     protected Picross picross;
     protected boolean showParseResult = false;
     protected JFrame window;
-    protected JMenu menu;
+    protected JMenuBar menubar;
 
     class Picross {
         public String title;
@@ -260,13 +261,55 @@ public class PicrossEditor {
         return p;
     }
 
-    protected void createWindow(){
-        window = new JFrame("Picross Editor");
+    protected JMenuBar createMenuBar(boolean fileOpened){
+        JMenuBar menubar = new JMenuBar();
+
+        JMenu file = new JMenu("File");
+        JMenuItem fileNew = new JMenuItem("New");
+        JMenuItem fileOpen = new JMenuItem("Open");
+        JMenuItem quit = new JMenuItem("Quit");
+
+        file.add(fileNew);
+        file.add(fileOpen);
+        if(fileOpened){
+            JMenuItem fileSave = new JMenuItem("Save");
+            file.addSeparator();
+            file.add(fileSave);
+            file.addSeparator();
+        }
+        file.add(quit);
+
+        if(fileOpened){
+            menubar.add(file);
+        }else{
+            menubar.add(file);
+        }
+
+        return menubar;
     }
 
-    protected void initWindow(){
+    protected JFrame createWindow(String filename){
+        JFrame window = new JFrame("Picross Editor");
+
+        menubar = createMenuBar(filename != null);
+        window.setJMenuBar(menubar);
+
+        window.setSize(new Dimension(400,300));
+
+        try{
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        }catch (Exception e){
+            printerr("Could not get the system look-and-feel");
+            // go next
+        }
+
+        return window;
+    }
+
+    protected void initWindow(String filename){
         if(window == null){
-            createWindow();
+            window = createWindow(filename);
+            window.setVisible(true);
         }
     }
 
@@ -299,7 +342,7 @@ public class PicrossEditor {
             System.exit(0);
         }
 
-        initWindow();
+        initWindow(picross != null? files[0] : null);
     }
 
     public static void main(String[] args) {

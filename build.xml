@@ -20,7 +20,7 @@
 
   <!-- test -->
   <target name="test" depends="compile-for-debug">
-    <junit printsummary="yes">
+    <junit printsummary="yes" fork="true">
       <classpath>
         <pathelement path="${build}/classes"/>
         <pathelement path="${build}/test"/>
@@ -53,7 +53,7 @@
 
   <!-- run -->
   <target name="run">
-    <java classname="${main-class}" classpath="${build}/classes" classpathref="lib.path.id">
+    <java classname="${main-class}" classpath="${build}/classes" fork="true" classpathref="lib.path.id">
       <arg value="examples/e.txt"/>
     </java>
   </target>
