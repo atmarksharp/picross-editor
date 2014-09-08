@@ -10,6 +10,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import javax.swing.*;
+import javax.imageio.ImageIO;
+
 import java.awt.*;
 
 public class PicrossEditor {
