@@ -58,7 +58,7 @@
   </target>
 
   <!-- compile-run -->
-  <target name="compile-run" depends="compile,run">
+  <target name="compile-run" depends="compile-for-debug,run">
   </target>
 
   <!-- jar -->

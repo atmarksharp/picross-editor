@@ -1,7 +1,6 @@
 package picross;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.regex.*;
 
 import java.io.File;
@@ -10,17 +9,25 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.imageio.ImageIO;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 
 public class PicrossEditor {
+    protected int pixelSize = 40;
+    protected int boldLineThickness = 3;
+    protected int normalLineThickness = 1;
+
     protected String[] files;
     protected String[] opts;
     protected Picross picross;
     protected boolean showParseResult = false;
     protected JFrame window;
     protected JMenuBar menubar;
+    protected JPanel picrossPanel;
 
     class Picross {
         public String title;
@@ -263,6 +270,60 @@ public class PicrossEditor {
         return p;
     }
 
+    protected int maxSize(List<List<Integer>> list){
+        List<Integer> sizes = new ArrayList<Integer>();
+
+        for (int i=0; i<list.size(); i++) {
+            List<Integer> nums = list.get(i);
+            sizes.add(nums.size());
+        }
+
+        return Collections.max(sizes);
+    }
+
+    protected JPanel createPicrossPanel(boolean fileOpened){
+        JPanel panel = new JPanel();
+
+        int leftColumnWidth = maxSize(picross.left) * pixelSize;
+        int leftColumnHeight = picross.left.size() * pixelSize;
+        int upColumnWidth = picross.up.size() * pixelSize;
+        int upColumnHeight = maxSize(picross.up) * pixelSize;
+        int bodyWidth = upColumnWidth;
+        int bodyHeight = leftColumnHeight;
+        int width = (leftColumnWidth + bodyWidth);
+        int height = (upColumnHeight + bodyHeight);
+
+        panel.setLayout(null);
+        panel.setSize(width, height);
+
+        if(!fileOpened){
+            return panel;
+        }
+
+        JPanel emptyColumn = new JPanel();
+        JPanel leftColumn = new JPanel();
+        JPanel upColumn = new JPanel();
+        JPanel body = new JPanel();
+
+        emptyColumn.setBounds(0, 0, (width - bodyWidth), (height - bodyHeight));
+        leftColumn.setBounds(0, (height - bodyHeight), leftColumnWidth, leftColumnHeight);
+        upColumn.setBounds((width - bodyWidth), 0, upColumnWidth, upColumnHeight);
+        body.setBounds((width - bodyWidth), (height - bodyHeight), bodyWidth, bodyHeight);
+
+        emptyColumn.setBorder(null);
+        leftColumn.setBorder(new LineBorder(Color.black, boldLineThickness));
+        upColumn.setBorder(new LineBorder(Color.black, boldLineThickness));
+        body.setBorder(new LineBorder(Color.black, boldLineThickness));
+
+        panel.add(emptyColumn);
+        panel.add(leftColumn);
+        panel.add(upColumn);
+        panel.add(body);
+
+
+        return panel;
+    }
+
     protected JMenuBar createMenuBar(boolean fileOpened){
         JMenuBar menubar = new JMenuBar();
 
@@ -271,18 +332,39 @@ public class PicrossEditor {
         JMenuItem fileOpen = new JMenuItem("Open");
         JMenuItem quit = new JMenuItem("Quit");
 
-        file.add(fileNew);
-        file.add(fileOpen);
-        if(fileOpened){
-            JMenuItem fileSave = new JMenuItem("Save");
-            file.addSeparator();
-            file.add(fileSave);
-            file.addSeparator();
+        JMenu edit = new JMenu("Edit");
+        JMenuItem undo = new JMenuItem("Undo");
+        JMenuItem redo = new JMenuItem("Redo");
+
+        JMenu tool = new JMenu("Tool");
+        JMenuItem guessStart = new JMenuItem("GuessStart");
+        JMenuItem guessEnd = new JMenuItem("GuessEnd");
+
+        {
+            file.add(fileNew);
+            file.add(fileOpen);
+            if(fileOpened){
+                JMenuItem fileSave = new JMenuItem("Save");
+                file.addSeparator();
+                file.add(fileSave);
+                file.addSeparator();
+            }
+            file.add(quit);
         }
-        file.add(quit);
+        {
+            if(fileOpened){
+                edit.add(undo);
+                edit.add(redo);
+
+                tool.add(guessStart);
+                tool.add(guessEnd);
+            }
+        }
 
         if(fileOpened){
             menubar.add(file);
+            menubar.add(edit);
+            menubar.add(tool);
         }else{
             menubar.add(file);
         }
@@ -295,8 +377,11 @@ public class PicrossEditor {
 
         menubar = createMenuBar(filename != null);
         window.setJMenuBar(menubar);
+        picrossPanel = createPicrossPanel(filename != null);
 
-        window.setSize(new Dimension(400,300));
+        window.setSize(new Dimension(600,600));
+        window.setLayout(new GridLayout(1, 1));
+        window.add(picrossPanel);
 
         try{
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
