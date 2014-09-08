@@ -21,6 +21,10 @@ public class PicrossEditor {
     protected int boldLineThickness = 3;
     protected int normalLineThickness = 1;
 
+    protected Border boldLine = new LineBorder(Color.black, boldLineThickness);
+    protected Border haflLine = new LineBorder(Color.black, boldLineThickness/2);
+    protected Border normalLine = new LineBorder(Color.black, normalLineThickness);
+
     protected String[] files;
     protected String[] opts;
     protected Picross picross;
@@ -323,10 +327,10 @@ public class PicrossEditor {
         body.setBounds((width - bodyWidth), (height - bodyHeight), bodyWidth, bodyHeight);
 
         // Set Border
-        emptyColumn.setBorder(new LineBorder(Color.black, boldLineThickness/2));
-        leftColumn.setBorder(new LineBorder(Color.black, boldLineThickness));
-        upColumn.setBorder(new LineBorder(Color.black, boldLineThickness));
-        body.setBorder(new LineBorder(Color.black, boldLineThickness));
+        emptyColumn.setBorder(BorderFactory.createMatteBorder(boldLineThickness, boldLineThickness, 0, 0, Color.black));
+        leftColumn.setBorder(BorderFactory.createMatteBorder(boldLineThickness, 0, boldLineThickness, 0, Color.black));
+        upColumn.setBorder(BorderFactory.createMatteBorder(0, boldLineThickness, 0, boldLineThickness, Color.black));
+        body.setBorder(boldLine);
 
         // Set Background
         emptyColumn.setBackground( hsb(28, 61, 56) );
@@ -336,13 +340,23 @@ public class PicrossEditor {
 
         // Prepare for Next
         JPanel numRow;
+        JPanel numBox;
 
         // Set Number Rows on the Left Column
         leftColumn.setLayout(new GridLayout(leftColumnHeight/pixelSize, 1));
         for(int i=0; i<leftColumnHeight/pixelSize; i++) {
             numRow = new JPanel();
             numRow.setBackground(null);
-            numRow.setBorder(new LineBorder(Color.black, normalLineThickness));
+            numRow.setBorder(normalLine);
+            numRow.setLayout(new GridLayout(1, leftColumnWidth/pixelSize));
+
+            for (int j=0; j<leftColumnWidth/pixelSize; j++) {
+                numBox = new JPanel();
+                numBox.setBackground(null);
+                numBox.setBorder(BorderFactory.createMatteBorder(0,normalLineThickness,0,0,Color.black));
+                numRow.add(numBox);
+            }
+
             leftColumn.add(numRow); 
         }
 
@@ -352,7 +366,25 @@ public class PicrossEditor {
             numRow = new JPanel();
             numRow.setBackground(null);
             numRow.setBorder(new LineBorder(Color.black, normalLineThickness));
+            numRow.setLayout(new GridLayout(upColumnHeight/pixelSize, 1));
+
+            for (int j=0; j<upColumnHeight/pixelSize; j++) {
+                numBox = new JPanel();
+                numBox.setBackground(null);
+                numBox.setBorder(BorderFactory.createMatteBorder(normalLineThickness,0,0,0,Color.black));
+                numRow.add(numBox);
+            }
+
             upColumn.add(numRow); 
+        }
+
+        // Set Cells on the Body
+        body.setLayout(new GridLayout(bodyHeight/pixelSize, bodyWidth/pixelSize));
+        for(int i=0; i<(bodyWidth*bodyHeight)/(pixelSize*pixelSize); i++) {
+            numBox = new JPanel();
+            numBox.setBackground(null);
+            numBox.setBorder(normalLine);
+            body.add(numBox);
         }
 
         // Add Children
