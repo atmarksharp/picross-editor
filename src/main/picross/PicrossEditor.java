@@ -17,7 +17,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 
 public class PicrossEditor {
-    protected int pixelSize = 40;
+    protected int pixelSize = 30;
     protected int boldLineThickness = 3;
     protected int normalLineThickness = 1;
 
@@ -25,9 +25,13 @@ public class PicrossEditor {
     protected String[] opts;
     protected Picross picross;
     protected boolean showParseResult = false;
+
     protected JFrame window;
     protected JMenuBar menubar;
     protected JPanel picrossPanel;
+    protected JPanel leftColumn;
+    protected JPanel upColumn;
+    protected JPanel body;
 
     class Picross {
         public String title;
@@ -270,6 +274,10 @@ public class PicrossEditor {
         return p;
     }
 
+    protected Color hsb(int h, int s, int b){
+        return Color.getHSBColor(h/360.0F, s/100.0F, b/100.0F);
+    }
+
     protected int maxSize(List<List<Integer>> list){
         List<Integer> sizes = new ArrayList<Integer>();
 
@@ -284,6 +292,7 @@ public class PicrossEditor {
     protected JPanel createPicrossPanel(boolean fileOpened){
         JPanel panel = new JPanel();
 
+        // Calculate Parameters
         int leftColumnWidth = maxSize(picross.left) * pixelSize;
         int leftColumnHeight = picross.left.size() * pixelSize;
         int upColumnWidth = picross.up.size() * pixelSize;
@@ -293,6 +302,7 @@ public class PicrossEditor {
         int width = (leftColumnWidth + bodyWidth);
         int height = (upColumnHeight + bodyHeight);
 
+        // Set Absolute Layout
         panel.setLayout(null);
         panel.setSize(width, height);
 
@@ -300,26 +310,56 @@ public class PicrossEditor {
             return panel;
         }
 
+        // Initialize
         JPanel emptyColumn = new JPanel();
-        JPanel leftColumn = new JPanel();
-        JPanel upColumn = new JPanel();
-        JPanel body = new JPanel();
+        leftColumn = new JPanel();
+        upColumn = new JPanel();
+        body = new JPanel();
 
+        // Set Bounds
         emptyColumn.setBounds(0, 0, (width - bodyWidth), (height - bodyHeight));
         leftColumn.setBounds(0, (height - bodyHeight), leftColumnWidth, leftColumnHeight);
         upColumn.setBounds((width - bodyWidth), 0, upColumnWidth, upColumnHeight);
         body.setBounds((width - bodyWidth), (height - bodyHeight), bodyWidth, bodyHeight);
 
-        emptyColumn.setBorder(null);
+        // Set Border
+        emptyColumn.setBorder(new LineBorder(Color.black, boldLineThickness/2));
         leftColumn.setBorder(new LineBorder(Color.black, boldLineThickness));
         upColumn.setBorder(new LineBorder(Color.black, boldLineThickness));
         body.setBorder(new LineBorder(Color.black, boldLineThickness));
 
+        // Set Background
+        emptyColumn.setBackground( hsb(28, 61, 56) );
+        leftColumn.setBackground( hsb(28, 33, 95) );
+        upColumn.setBackground( hsb(28, 33, 95) );
+        body.setBackground( hsb(28, 20, 100) );
+
+        // Prepare for Next
+        JPanel numRow;
+
+        // Set Number Rows on the Left Column
+        leftColumn.setLayout(new GridLayout(leftColumnHeight/pixelSize, 1));
+        for(int i=0; i<leftColumnHeight/pixelSize; i++) {
+            numRow = new JPanel();
+            numRow.setBackground(null);
+            numRow.setBorder(new LineBorder(Color.black, normalLineThickness));
+            leftColumn.add(numRow); 
+        }
+
+        // Set Number Rows on the Up Column
+        upColumn.setLayout(new GridLayout(1, upColumnWidth/pixelSize));
+        for(int i=0; i<upColumnWidth/pixelSize; i++) {
+            numRow = new JPanel();
+            numRow.setBackground(null);
+            numRow.setBorder(new LineBorder(Color.black, normalLineThickness));
+            upColumn.add(numRow); 
+        }
+
+        // Add Children
         panel.add(emptyColumn);
         panel.add(leftColumn);
         panel.add(upColumn);
         panel.add(body);
-
 
         return panel;
     }
