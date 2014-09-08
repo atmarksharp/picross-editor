@@ -24,8 +24,7 @@
       <classpath>
         <pathelement path="${build}/classes"/>
         <pathelement path="${build}/test"/>
-        <fileset dir="${lib}" includes="junit.jar"/>
-        <fileset dir="${lib}" includes="hamcrest-core.jar"/>
+        <fileset dir="${lib}" includes="**/*.jar"/>
       </classpath>
       <formatter type="plain" usefile="false"/>
       <batchtest>
@@ -69,15 +68,13 @@
     <jar basedir="${build}/classes" jarfile="${build}/jar/${jar-name}-${version}.jar">
       <restrict>
         <name name="**/*.class"/>
-         <archives>
+         <!-- <archives>
           <zips>
             <zipfileset dir="${lib}">
-             <include name="**/*.jar"/>
-             <exclude name="**/junit.jar"/> 
-             <exclude name="**/hamcrest-core.jar"/> 
+             <include name="xxx.jar"/>
             </zipfileset>
           </zips>
-        </archives>
+        </archives> -->
       </restrict>
       <manifest>
         <attribute name="Main-Class" value="${main-class}"/>
