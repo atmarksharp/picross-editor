@@ -28,7 +28,7 @@ import java.awt.Graphics2D;
 import java.awt.image.*;
 import java.awt.event.*;
 
-import org.apache.commons.lang3.ArrayUtils;
+// import org.apache.commons.lang3.ArrayUtils;
 
 
 public class PicrossEditor {
@@ -91,6 +91,14 @@ public class PicrossEditor {
         }catch(Exception e){
             println(e);
         }
+    }
+
+    public int[] convertIntegers(Integer[] integers){
+        int[] ret = new int[integers.length];
+        for(int i=0; i < ret.length; i++){
+            ret[i] = integers[i].intValue();
+        }
+        return ret;
     }
 
     class Progress {
@@ -166,7 +174,7 @@ public class PicrossEditor {
                 list.add(0);
             }
 
-            return ArrayUtils.toPrimitive(list.toArray(new Integer[]{}));
+            return convertIntegers(list.toArray(new Integer[]{}));
         }
 
         public PixelType[] getVLine(int x){
@@ -279,6 +287,10 @@ public class PicrossEditor {
             }
 
             Point p = detectPosition(e.getX(), e.getY());
+
+            if(basePos == null){
+                return;
+            }
 
             if(p.x == basePos.x && p.y == basePos.y){
                 return;
@@ -617,11 +629,12 @@ public class PicrossEditor {
 
         if(pixelImage == null){
             try{
-                if(runningInJar){
-                    pixelImage = ImageIO.read(getClass().getResource("./pixel_images.png"));
-                }else{
-                    pixelImage = ImageIO.read(new File("resource/pixel_images.png"));
-                }
+                // if(runningInJar){
+                //     pixelImage = ImageIO.read(getClass().getResource("./pixel_images.png"));
+                // }else{
+                //     pixelImage = ImageIO.read(new File("resource/pixel_images.png"));
+                // }
+                pixelImage = ImageIO.read(new File("resource/pixel_images.png"));
             }catch(Exception e){
                 e.printStackTrace();
                 System.exit(1);

@@ -63,12 +63,13 @@
   </target>
 
   <!-- jar -->
-  <target name="jar" depends="compile">
+  <target name="jar" depends="compile-for-debug">
     <delete file="${build}/jar/${jar-name}-${version}.jar"/>
     <mkdir dir="${build}/jar" />
     <jar basedir="${build}/classes" jarfile="${build}/jar/${jar-name}-${version}.jar">
       <restrict>
         <name name="**/*.class"/>
+
         <fileset dir="${resource}">
           <include name="**/*"/>
           <exclude name="**/.DS_Store"/>
