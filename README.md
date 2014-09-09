@@ -8,7 +8,7 @@
 
 [picross-editor-0.1.0-source.zip](https://github.com/atmarksharp/atmarksharp.github.io/raw/master/picross-editor/picross-editor-0.1.0-source.zip)
 
-## Execute Sample
+## Run Samples
 
 ### Dependencies
 
