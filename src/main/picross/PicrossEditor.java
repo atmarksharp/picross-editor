@@ -26,6 +26,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 
 import java.awt.image.*;
+import java.awt.event.*;
 
 public class PicrossEditor {
     protected int pixelSize = 30;
@@ -49,9 +50,12 @@ public class PicrossEditor {
     protected JPanel leftColumn;
     protected JPanel upColumn;
     protected JPanel body;
+    protected enum PixelType {FILL, CROSS, GUESS_NOFILL ,GUESS_FILL, GUESS_CROSS, CHECK}
 
     protected BufferedImage pixelImage;
     protected Map<Integer,BufferedImage> imageCache = new HashMap<Integer, BufferedImage>();
+
+    protected PicrossListener picrossListener;
 
     class Picross {
         public String title;
@@ -66,6 +70,36 @@ public class PicrossEditor {
             height = _height;
             left = _left;
             up = _up;
+        }
+    }
+
+    class PicrossListener implements MouseListener, MouseMotionListener {
+        public void mouseClicked(MouseEvent e){
+            println("mouseClicked");
+        }
+
+        public void mouseEntered(MouseEvent e){
+            println("mouseEntered");
+        }
+
+        public void mouseExited(MouseEvent e){
+            println("mouseExited");
+        }
+
+        public void mousePressed(MouseEvent e){
+            println("mousePressed");
+        }
+
+        public void mouseReleased(MouseEvent e){
+            println("mouseReleased");
+        }
+
+        public void mouseDragged(MouseEvent e){
+            println("mouseDragged");
+        }
+
+        public void mouseMoved(MouseEvent e){
+            
         }
     }
 
@@ -322,6 +356,22 @@ public class PicrossEditor {
         return retImage;
     }
 
+    protected BufferedImage pixelImage(PixelType type){
+        if(type == PixelType.FILL){
+            return numberImage(101);
+        }else if(type == PixelType.CROSS){
+            return numberImage(102);
+        }else if(type == PixelType.GUESS_NOFILL){
+            return numberImage(103);
+        }else if(type == PixelType.GUESS_FILL){
+            return numberImage(104);
+        }else if(type == PixelType.GUESS_CROSS){
+            return numberImage(105);
+        }else if(type == PixelType.CHECK){
+            return numberImage(106);
+        }
+    }
+
     protected BufferedImage numberImage(int n){
         if(n > 100) return null;
 
@@ -415,6 +465,15 @@ public class PicrossEditor {
         leftColumn = new JPanel();
         upColumn = new JPanel();
         body = new JPanel();
+
+        // Set Listeners
+        if(picrossListener == null){
+            picrossListener = new PicrossListener();
+        }
+
+        body.addMouseListener(picrossListener);
+        body.addMouseMotionListener(picrossListener);
+
 
         // Set Bounds
         emptyColumn.setBounds(0, 0, (width - bodyWidth), (height - bodyHeight));
@@ -577,10 +636,8 @@ public class PicrossEditor {
     }
 
     protected void initWindow(String filename){
-        if(window == null){
-            window = createWindow(filename);
-            window.setVisible(true);
-        }
+        window = createWindow(filename);
+        window.setVisible(true);
     }
 
     protected void checkIfRunningInJar(){
