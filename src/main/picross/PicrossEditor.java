@@ -50,12 +50,13 @@ public class PicrossEditor {
     protected JPanel leftColumn;
     protected JPanel upColumn;
     protected JPanel body;
-    protected enum PixelType {FILL, CROSS, GUESS_NOFILL ,GUESS_FILL, GUESS_CROSS, CHECK}
+    protected enum PixelType {NO_FILL, FILL, CROSS, GUESS_NOFILL ,GUESS_FILL, GUESS_CROSS, CHECK}
 
     protected BufferedImage pixelImage;
     protected Map<Integer,BufferedImage> imageCache = new HashMap<Integer, BufferedImage>();
 
     protected PicrossListener picrossListener;
+    protected Progress progress;
 
     class Picross {
         public String title;
@@ -70,6 +71,17 @@ public class PicrossEditor {
             height = _height;
             left = _left;
             up = _up;
+        }
+    }
+
+    class Progress {
+        public PixelType[] pixels;
+
+        public Progress(Picross p){
+            pixels = new PixelType[p.left.size() * p.up.size()];
+            for (int i=0; i<pixels.length; i++) {
+                pixels[i] = PixelType.NO_FILL;
+            }
         }
     }
 
@@ -369,6 +381,8 @@ public class PicrossEditor {
             return numberImage(105);
         }else if(type == PixelType.CHECK){
             return numberImage(106);
+        }else{
+            return null;
         }
     }
 
@@ -670,6 +684,7 @@ public class PicrossEditor {
         }
         
         picross = parse(files[0]);
+        progress = new Progress(picross);
 
         if(showParseResult){
             printParseResult(picross);
