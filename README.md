@@ -1,10 +1,10 @@
 # Picross Editor
 
-Keywords: Nonogram, Griddlers, Illust Logic, Picture Logic, Picross
+**Keywords**: Nonogram, Griddlers, Illust Logic, Picture Logic, Picross
 
 ## Status
 
-<b><i><span style="color:red; font-size: 13pt">Not complete</span></i></b>
+_**[ Not Complete! ]**_
 
 ## Dependencies
 
