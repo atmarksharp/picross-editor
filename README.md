@@ -2,6 +2,10 @@
 
 Keywords: Nonogram, Griddlers, Illust Logic, Picture Logic, Picross
 
+## Status
+
+<b><i><span style="color:red; font-size: 13pt">Not complete</span></i></b>
+
 ## Dependencies
 
 - Java Runtime Environment (JRE) 6 (or higher)
