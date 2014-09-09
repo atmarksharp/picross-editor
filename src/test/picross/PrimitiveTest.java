@@ -85,4 +85,12 @@ public class PrimitiveTest {
     assertEquals(2, (int)numbers.get(1));
     assertEquals(32, (int)numbers.get(2));
   }
+
+  enum Person{TOM,EMILY};
+
+  @Test
+  public void enumCompareTest(){
+    assertTrue(Person.TOM == Person.TOM);
+    assertTrue(Person.TOM != Person.EMILY);
+  }
 }

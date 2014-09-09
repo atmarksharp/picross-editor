@@ -28,6 +28,9 @@ import java.awt.Graphics2D;
 import java.awt.image.*;
 import java.awt.event.*;
 
+import org.apache.commons.lang3.ArrayUtils;
+
+
 public class PicrossEditor {
     protected int pixelSize = 30;
     protected int imageUnitSize = 40;
@@ -50,10 +53,13 @@ public class PicrossEditor {
     protected JPanel leftColumn;
     protected JPanel upColumn;
     protected JPanel body;
-    protected enum PixelType {NO_FILL, FILL, CROSS, GUESS_NOFILL ,GUESS_FILL, GUESS_CROSS, CHECK}
+    protected enum PixelType {NOFILL, FILL, CROSS, GUESS_NOFILL ,GUESS_FILL, GUESS_CROSS, CHECK}
 
     protected BufferedImage pixelImage;
     protected Map<Integer,BufferedImage> imageCache = new HashMap<Integer, BufferedImage>();
+    protected List<JPanel> cells;
+    protected List<List<JPanel>> leftNumberCells;
+    protected List<List<JPanel>> upNumberCells;
 
     protected PicrossListener picrossListener;
     protected Progress progress;
@@ -74,44 +80,234 @@ public class PicrossEditor {
         }
     }
 
+    // for test only
+    protected Picross createPicross(String title, int width, int height, List<List<Integer>> left, List<List<Integer>> up){
+        return new Picross(title, width, height, left, up);
+    }
+
+    protected void finish(){
+        println("Conguraturations!");
+    }
+
     class Progress {
-        public PixelType[] pixels;
+        protected Picross picross;
+        protected PixelType[] pixels;
+
+        public boolean checkFinished(){
+            for (int x=0; x<picross.width; x++) {
+                int[] line = parseLine(getVLine(x));
+                if(!checkVLine(line, x)){
+                    return false;
+                }
+            }
+
+            for (int y=0; y<picross.height; y++) {
+                int[] line = parseLine(getHLine(y));
+                if(!checkHLine(line, y)){
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public boolean checkVLine(int[] line, int x){
+            List<Integer> ans = picross.up.get(x);
+            for (int i=0; i<picross.up.get(x).size(); i++) {
+                if(line[i] != ans.get(i)){
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public boolean checkHLine(int[] line, int y){
+            List<Integer> ans = picross.left.get(y);
+            for (int i=0; i<picross.left.get(y).size(); i++) {
+                if(line[i] != ans.get(i)){
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public int[] parseLine(PixelType[] line){
+            boolean counting = false;
+            int count = 0;
+
+            List<Integer> list = new ArrayList<Integer>();
+
+            for (int i=0; i<line.length; i++) {
+                PixelType p = line[i];
+                if(p == PixelType.FILL){
+                    counting = true;
+                    count += 1;
+                }else if(counting){
+                    counting = false;
+                    list.add(count);
+                    count = 0;
+                }
+            }
+            if(counting){
+                list.add(count);
+            }
+
+            if(list.size() == 0){
+                list.add(0);
+            }
+
+            return ArrayUtils.toPrimitive(list.toArray(new Integer[]{}));
+        }
+
+        public PixelType[] getVLine(int x){
+            List<PixelType> list = new ArrayList<PixelType>();
+            for(int i=0; i<picross.height; i++){
+                list.add(this.getPixel(x,i));
+            }
+            return list.toArray(new PixelType[]{});
+        }
+
+        public PixelType[] getHLine(int y){
+            List<PixelType> list = new ArrayList<PixelType>();
+            for(int i=0; i<picross.width; i++){
+                list.add(this.getPixel(i,y));
+            }
+            return list.toArray(new PixelType[]{});
+        }
+
+        public void setPixel(int index, PixelType type){
+            if(index >= pixels.length){
+                // do nothing
+            }else{
+                pixels[index] = type;
+            }
+
+            if(checkFinished()){
+                finish();
+            }
+        }
+
+        public PixelType getPixel(int index){
+            if(index >= pixels.length){
+                return null;
+            }else{
+                return pixels[index];
+            }
+        }
+
+        public PixelType getPixel(int x, int y){
+            int index = x + (y * picross.width);
+            return getPixel(index);
+        }
 
         public Progress(Picross p){
+            this.picross = p;
             pixels = new PixelType[p.left.size() * p.up.size()];
             for (int i=0; i<pixels.length; i++) {
-                pixels[i] = PixelType.NO_FILL;
+                pixels[i] = PixelType.NOFILL;
             }
         }
     }
 
+    // for test only
+    protected Progress createProgress(Picross p){
+        return new Progress(p);
+    }
+
     class PicrossListener implements MouseListener, MouseMotionListener {
+        Map<PixelType, PixelType> convert = new HashMap<PixelType, PixelType>();
+        Point basePos;
+        Point baseVec;
+        PixelType baseType;
+
+        public PicrossListener(){
+            convert.put(PixelType.NOFILL, PixelType.FILL);
+            convert.put(PixelType.FILL, PixelType.CROSS);
+            convert.put(PixelType.CROSS, PixelType.NOFILL);
+            convert.put(PixelType.GUESS_NOFILL, PixelType.GUESS_FILL);
+            convert.put(PixelType.GUESS_FILL, PixelType.GUESS_CROSS);
+            convert.put(PixelType.GUESS_CROSS, PixelType.GUESS_NOFILL);
+        }
+
         public void mouseClicked(MouseEvent e){
-            println("mouseClicked");
+            // do nothing
         }
 
         public void mouseEntered(MouseEvent e){
-            println("mouseEntered");
+            // do nothing
         }
 
         public void mouseExited(MouseEvent e){
-            println("mouseExited");
+            // do nothing
         }
 
         public void mousePressed(MouseEvent e){
-            println("mousePressed");
+            Point p = detectPosition(e.getX(), e.getY());
+            int index = calcIndex(p.x, p.y);
+            baseType = convert.get(progress.getPixel(index));
+
+            if(baseType == null){
+                return;
+            }
+
+            progress.setPixel(index, baseType);
+            setCellImage(index, baseType);
+
+            basePos = p;
+            baseVec = null;
         }
 
         public void mouseReleased(MouseEvent e){
-            println("mouseReleased");
+            basePos = null;
+            baseVec = null;
+            baseType = null;
         }
 
         public void mouseDragged(MouseEvent e){
-            println("mouseDragged");
+            if(baseType == null){
+                return;
+            }
+
+            Point p = detectPosition(e.getX(), e.getY());
+
+            if(p.x == basePos.x && p.y == basePos.y){
+                return;
+            }
+
+            if(baseVec == null){
+                int dx = Math.abs(p.x - basePos.x);
+                int dy = Math.abs(p.y - basePos.y);
+
+                if(dx > 0 && dy > 0){
+                    return;
+                }else{
+                    if(dx > 0){
+                        baseVec = new Point(-1, p.y);
+                    }else{
+                        baseVec = new Point(p.x, -1);
+                    }
+                }
+            }
+
+            if(baseVec.x > -1){
+                Integer index = calcIndex(baseVec.x, p.y);
+                if(index == null){
+                    return;
+                }
+                progress.setPixel(index, baseType);
+                setCellImage(index, baseType);
+            }else if(baseVec.y > -1){
+                Integer index = calcIndex(p.x, baseVec.y);
+                if(index == null){
+                    return;
+                }
+                progress.setPixel(index, baseType);
+                setCellImage(index, baseType);
+            }
         }
 
         public void mouseMoved(MouseEvent e){
-            
+
         }
     }
 
@@ -340,6 +536,18 @@ public class PicrossEditor {
         return p;
     }
 
+    protected Point detectPosition(int x, int y){
+        return new Point(x/pixelSize, y/pixelSize);
+    }
+
+    protected Integer calcIndex(int x, int y){
+        if(x >= picross.width || y >= picross.height){
+            return null;
+        }else{
+            return x + (y * picross.width);
+        }
+    }
+
     protected Color hsb(int h, int s, int b){
         return Color.getHSBColor(h/360.0F, s/100.0F, b/100.0F);
     }
@@ -353,7 +561,7 @@ public class PicrossEditor {
         }
 
         return Collections.max(sizes);
-    }
+    } 
 
     protected Point calcImagePosition(int n){
         return new Point(imageUnitSize*((n-1)%20),imageUnitSize*((n-1)/20));
@@ -368,26 +576,34 @@ public class PicrossEditor {
         return retImage;
     }
 
-    protected BufferedImage pixelImage(PixelType type){
-        if(type == PixelType.FILL){
-            return numberImage(101);
+    protected BufferedImage cellImage(PixelType type){
+        if(type == PixelType.NOFILL){
+            return getImage(101, false);
+        }else if(type == PixelType.FILL){
+            return getImage(102, false);
         }else if(type == PixelType.CROSS){
-            return numberImage(102);
+            return getImage(103, false);
         }else if(type == PixelType.GUESS_NOFILL){
-            return numberImage(103);
+            return getImage(104, false);
         }else if(type == PixelType.GUESS_FILL){
-            return numberImage(104);
+            return getImage(105, false);
         }else if(type == PixelType.GUESS_CROSS){
-            return numberImage(105);
+            return getImage(106, false);
         }else if(type == PixelType.CHECK){
-            return numberImage(106);
+            return getImage(107, false);
         }else{
             return null;
         }
     }
 
     protected BufferedImage numberImage(int n){
-        if(n > 100) return null;
+        return getImage(n, true);
+    }
+
+    protected BufferedImage getImage(int n, boolean numberOnly){
+        if(numberOnly && n > 100){
+            return null;
+        }
 
         if(pixelImage == null){
             try{
@@ -414,6 +630,21 @@ public class PicrossEditor {
         }else{
             // Use the Cashed Image
             return imageCache.get(n);
+        }
+    }
+
+     protected void setCellImage(int index, PixelType type){
+        JPanel cell = cells.get(index);
+        cell.removeAll();
+
+        BufferedImage img = cellImage(type);
+        if(img == null){
+            cell.add(new JLabel());
+            cell.revalidate();
+            return;
+        }else{
+            cell.add(new JLabel(new ImageIcon(img)));
+            cell.revalidate();
         }
     }
 
@@ -510,14 +741,18 @@ public class PicrossEditor {
         // Prepare for Next
         JPanel numRow;
         JPanel numBox;
+        List<JPanel> numCell;
 
         // Set Number Rows on the Left Column
+        leftNumberCells = new ArrayList<List<JPanel>>();
         leftColumn.setLayout(new GridLayout(leftColumnHeight/pixelSize, 1));
         for(int i=0; i<leftColumnHeight/pixelSize; i++) {
             numRow = new JPanel();
             numRow.setBackground(null);
             numRow.setBorder(normalLine);
             numRow.setLayout(new GridLayout(1, leftColumnWidth/pixelSize));
+
+            numCell = new ArrayList<JPanel>();
 
             for (int j=0; j<leftColumnWidth/pixelSize; j++) {
                 numBox = new JPanel();
@@ -529,18 +764,24 @@ public class PicrossEditor {
                 numBox.setBorder(BorderFactory.createMatteBorder(0,normalLineThickness,0,0,Color.black));
                 numBox.add(leftNumberLabel(j,i,leftColumnWidth/pixelSize));
                 numRow.add(numBox);
+
+                numCell.add(numBox);
             }
 
-            leftColumn.add(numRow); 
+            leftColumn.add(numRow);
+            leftNumberCells.add(numCell);
         }
 
         // Set Number Rows on the Up Column
+        upNumberCells = new ArrayList<List<JPanel>>();
         upColumn.setLayout(new GridLayout(1, upColumnWidth/pixelSize));
         for(int i=0; i<upColumnWidth/pixelSize; i++) {
             numRow = new JPanel();
             numRow.setBackground(null);
             numRow.setBorder(new LineBorder(Color.black, normalLineThickness));
             numRow.setLayout(new GridLayout(upColumnHeight/pixelSize, 1));
+
+            numCell = new ArrayList<JPanel>();
 
             for (int j=0; j<upColumnHeight/pixelSize; j++) {
                 numBox = new JPanel();
@@ -552,18 +793,29 @@ public class PicrossEditor {
                 numBox.setBorder(BorderFactory.createMatteBorder(normalLineThickness,0,0,0,Color.black));
                 numBox.add(upNumberLabel(j,i,upColumnHeight/pixelSize));
                 numRow.add(numBox);
+
+                numCell.add(numBox);
             }
 
             upColumn.add(numRow); 
+            upNumberCells.add(numCell);
         }
 
         // Set Cells on the Body
+        cells = new ArrayList<JPanel>();
         body.setLayout(new GridLayout(bodyHeight/pixelSize, bodyWidth/pixelSize));
         for(int i=0; i<(bodyWidth*bodyHeight)/(pixelSize*pixelSize); i++) {
             numBox = new JPanel();
+            FlowLayout layout = new FlowLayout();
+            layout.setVgap(0);
+            layout.setHgap(0);
+            numBox.add(new JLabel(new ImageIcon(cellImage(PixelType.NOFILL))));
+            numBox.setLayout(layout);
             numBox.setBackground(null);
             numBox.setBorder(normalLine);
             body.add(numBox);
+
+            cells.add(numBox);
         }
 
         // Add Children
