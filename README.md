@@ -12,7 +12,7 @@
 
 ### Dependencies
 
-- Java Development Kit (JDK) **version 6** (or higher)
+- Java Development Kit (JDK) **version 6** (or higher) [=> URL](http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html)
 
 ### Instructions
 
