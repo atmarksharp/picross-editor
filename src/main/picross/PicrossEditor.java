@@ -15,6 +15,8 @@ import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.BorderLayout;
+import java.awt.Font;
 
 public class PicrossEditor {
     protected int pixelSize = 30;
@@ -293,6 +295,32 @@ public class PicrossEditor {
         return Collections.max(sizes);
     }
 
+    protected JLabel leftNumberLabel(int index, int rowIndex, int max){
+        List<Integer> row = picross.left.get(rowIndex);
+        int len = row.size();
+        int spaces = max - len;
+        int id = index - spaces;
+
+        if(id < 0){
+            return new JLabel();
+        }else{
+            return new JLabel(String.valueOf(row.get(id)));
+        }
+    }
+
+    protected JLabel upNumberLabel(int index, int columnIndex, int max){
+        List<Integer> column = picross.up.get(columnIndex);
+        int len = column.size();
+        int spaces = max - len;
+        int id = index - spaces;
+
+        if(id < 0){
+            return new JLabel();
+        }else{
+            return new JLabel(String.valueOf(column.get(id)));
+        }
+    }
+
     protected JPanel createPicrossPanel(boolean fileOpened){
         JPanel panel = new JPanel();
 
@@ -327,16 +355,17 @@ public class PicrossEditor {
         body.setBounds((width - bodyWidth), (height - bodyHeight), bodyWidth, bodyHeight);
 
         // Set Border
-        emptyColumn.setBorder(BorderFactory.createMatteBorder(boldLineThickness, boldLineThickness, 0, 0, Color.black));
-        leftColumn.setBorder(BorderFactory.createMatteBorder(boldLineThickness, 0, boldLineThickness, 0, Color.black));
-        upColumn.setBorder(BorderFactory.createMatteBorder(0, boldLineThickness, 0, boldLineThickness, Color.black));
+        emptyColumn.setBorder(null);
+        leftColumn.setBorder(BorderFactory.createMatteBorder(boldLineThickness, boldLineThickness, boldLineThickness, 0, Color.black));
+        upColumn.setBorder(BorderFactory.createMatteBorder(boldLineThickness, boldLineThickness, 0, boldLineThickness, Color.black));
         body.setBorder(boldLine);
 
         // Set Background
-        emptyColumn.setBackground( hsb(28, 61, 56) );
-        leftColumn.setBackground( hsb(28, 33, 95) );
-        upColumn.setBackground( hsb(28, 33, 95) );
-        body.setBackground( hsb(28, 20, 100) );
+        // emptyColumn.setBackground( hsb(28, 40, 100) );
+        emptyColumn.setBackground( null );
+        leftColumn.setBackground( hsb(28, 14, 100) );
+        upColumn.setBackground( hsb(28, 14, 100) );
+        body.setBackground( hsb(28, 4, 100) );
 
         // Prepare for Next
         JPanel numRow;
@@ -354,6 +383,7 @@ public class PicrossEditor {
                 numBox = new JPanel();
                 numBox.setBackground(null);
                 numBox.setBorder(BorderFactory.createMatteBorder(0,normalLineThickness,0,0,Color.black));
+                numBox.add(leftNumberLabel(j,i,leftColumnWidth/pixelSize));
                 numRow.add(numBox);
             }
 
@@ -372,6 +402,7 @@ public class PicrossEditor {
                 numBox = new JPanel();
                 numBox.setBackground(null);
                 numBox.setBorder(BorderFactory.createMatteBorder(normalLineThickness,0,0,0,Color.black));
+                numBox.add(upNumberLabel(j,i,upColumnHeight/pixelSize));
                 numRow.add(numBox);
             }
 
@@ -451,9 +482,14 @@ public class PicrossEditor {
         window.setJMenuBar(menubar);
         picrossPanel = createPicrossPanel(filename != null);
 
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new BorderLayout());
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        mainPanel.add("Center",picrossPanel);
+
         window.setSize(new Dimension(600,600));
         window.setLayout(new GridLayout(1, 1));
-        window.add(picrossPanel);
+        window.add(mainPanel);
 
         try{
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
