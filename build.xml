@@ -6,6 +6,7 @@
   <property name="src" value="src/main" />
   <property name="test" value="src/test" />
   <property name="lib" value="lib"/>
+  <property name="resource" value="resource"/>
   <property name="build" value="build"/>
   <property name="javac" value="javac"/>
 
@@ -68,13 +69,10 @@
     <jar basedir="${build}/classes" jarfile="${build}/jar/${jar-name}-${version}.jar">
       <restrict>
         <name name="**/*.class"/>
-         <!-- <archives>
-          <zips>
-            <zipfileset dir="${lib}">
-             <include name="xxx.jar"/>
-            </zipfileset>
-          </zips>
-        </archives> -->
+        <fileset dir="${resource}">
+          <include name="**/*"/>
+          <exclude name="**/.DS_Store"/>
+        </fileset>
       </restrict>
       <manifest>
         <attribute name="Main-Class" value="${main-class}"/>

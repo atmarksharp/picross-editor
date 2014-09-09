@@ -14,12 +14,22 @@ import javax.imageio.ImageIO;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.GridLayout;
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Rectangle;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+
+import java.awt.image.*;
 
 public class PicrossEditor {
     protected int pixelSize = 30;
+    protected int imageUnitSize = 40;
     protected int boldLineThickness = 3;
     protected int normalLineThickness = 1;
 
@@ -31,6 +41,7 @@ public class PicrossEditor {
     protected String[] opts;
     protected Picross picross;
     protected boolean showParseResult = false;
+    protected boolean runningInJar = false;
 
     protected JFrame window;
     protected JMenuBar menubar;
@@ -38,6 +49,9 @@ public class PicrossEditor {
     protected JPanel leftColumn;
     protected JPanel upColumn;
     protected JPanel body;
+
+    protected BufferedImage pixelImage;
+    protected Map<Integer,BufferedImage> imageCache = new HashMap<Integer, BufferedImage>();
 
     class Picross {
         public String title;
@@ -295,6 +309,50 @@ public class PicrossEditor {
         return Collections.max(sizes);
     }
 
+    protected Point calcImagePosition(int n){
+        return new Point(imageUnitSize*((n-1)%20),imageUnitSize*((n-1)/20));
+    }
+
+    protected BufferedImage convertToBuffered(Image img){
+        BufferedImage retImage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = (Graphics2D)retImage.getGraphics();
+        g.drawImage(img, 0, 0, null);
+        g.dispose();
+
+        return retImage;
+    }
+
+    protected BufferedImage numberImage(int n){
+        if(n > 100) return null;
+
+        if(pixelImage == null){
+            try{
+                if(runningInJar){
+                    pixelImage = ImageIO.read(getClass().getResource("./pixel_images.png"));
+                }else{
+                    pixelImage = ImageIO.read(new File("resource/pixel_images.png"));
+                }
+            }catch(Exception e){
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+
+        if(imageCache.get(n) == null){
+            Point pt = calcImagePosition(n);
+            BufferedImage img = pixelImage.getSubimage(pt.x, pt.y, imageUnitSize, imageUnitSize);
+            BufferedImage scaled = convertToBuffered(img.getScaledInstance(pixelSize, pixelSize, Image.SCALE_SMOOTH));
+
+            // Cashe an Image
+            imageCache.put(n,scaled);
+
+            return scaled;
+        }else{
+            // Use the Cashed Image
+            return imageCache.get(n);
+        }
+    }
+
     protected JLabel leftNumberLabel(int index, int rowIndex, int max){
         List<Integer> row = picross.left.get(rowIndex);
         int len = row.size();
@@ -304,7 +362,12 @@ public class PicrossEditor {
         if(id < 0){
             return new JLabel();
         }else{
-            return new JLabel(String.valueOf(row.get(id)));
+            BufferedImage img = numberImage(row.get(id));
+            if(img == null){
+                return new JLabel(String.valueOf(row.get(id)));
+            }else{
+                return new JLabel(new ImageIcon(img));
+            }
         }
     }
 
@@ -317,7 +380,12 @@ public class PicrossEditor {
         if(id < 0){
             return new JLabel();
         }else{
-            return new JLabel(String.valueOf(column.get(id)));
+            BufferedImage img = numberImage(column.get(id));
+            if(img == null){
+                return new JLabel(String.valueOf(column.get(id)));
+            }else{
+                return new JLabel(new ImageIcon(img));
+            }
         }
     }
 
@@ -361,7 +429,6 @@ public class PicrossEditor {
         body.setBorder(boldLine);
 
         // Set Background
-        // emptyColumn.setBackground( hsb(28, 40, 100) );
         emptyColumn.setBackground( null );
         leftColumn.setBackground( hsb(28, 14, 100) );
         upColumn.setBackground( hsb(28, 14, 100) );
@@ -381,6 +448,10 @@ public class PicrossEditor {
 
             for (int j=0; j<leftColumnWidth/pixelSize; j++) {
                 numBox = new JPanel();
+                FlowLayout layout = new FlowLayout();
+                layout.setVgap(0);
+                layout.setHgap(0);
+                numBox.setLayout(layout);
                 numBox.setBackground(null);
                 numBox.setBorder(BorderFactory.createMatteBorder(0,normalLineThickness,0,0,Color.black));
                 numBox.add(leftNumberLabel(j,i,leftColumnWidth/pixelSize));
@@ -400,6 +471,10 @@ public class PicrossEditor {
 
             for (int j=0; j<upColumnHeight/pixelSize; j++) {
                 numBox = new JPanel();
+                FlowLayout layout = new FlowLayout();
+                layout.setVgap(0);
+                layout.setHgap(0);
+                numBox.setLayout(layout);
                 numBox.setBackground(null);
                 numBox.setBorder(BorderFactory.createMatteBorder(normalLineThickness,0,0,0,Color.black));
                 numBox.add(upNumberLabel(j,i,upColumnHeight/pixelSize));
@@ -508,9 +583,16 @@ public class PicrossEditor {
         }
     }
 
+    protected void checkIfRunningInJar(){
+        String s = PicrossEditor.class.getResource("PicrossEditor.class").toString();
+        runningInJar = s.startsWith("jar");
+    }
+
     protected PicrossEditor(){} // for debug
 
     public PicrossEditor(String[] files, String[] opts){
+        checkIfRunningInJar();
+
         if(files.length == 0){
             help();
             System.exit(0);

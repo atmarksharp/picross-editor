@@ -7,6 +7,8 @@ import org.junit.runners.*;
 import java.util.*;
 import java.util.regex.*;
 
+import java.awt.Point;
+
 import java.io.*;
 
 import java.security.Permission;
@@ -189,5 +191,33 @@ public class PicrossEditorTest {
                 assertEquals(expected[i], result[i]);
             }
         }
+    }
+
+    @Test
+    public void calcImagePositionTest(){
+        PicrossEditorMock p = new PicrossEditorMock();
+        Point pt;
+
+        final int unit = p.imageUnitSize;
+
+        pt = p.calcImagePosition(1);
+        assertEquals(0, pt.x);
+        assertEquals(0, pt.y);
+
+        pt = p.calcImagePosition(2);
+        assertEquals(unit*1, pt.x);
+        assertEquals(0, pt.y);
+
+        pt = p.calcImagePosition(20);
+        assertEquals(unit*19, pt.x);
+        assertEquals(0, pt.y);
+
+        pt = p.calcImagePosition(21);
+        assertEquals(0, pt.x);
+        assertEquals(unit, pt.y);
+
+        pt = p.calcImagePosition(42);
+        assertEquals(unit, pt.x);
+        assertEquals(unit*2, pt.y);
     }
 }
