@@ -1,5 +1,5 @@
 <project name="picross-editor" default="compile-run" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
-  <property name="version" value="0.0.1"/>
+  <property name="version" value="0.1.0"/>
   <property name="jar-name" value="picross-editor"/>
   <property name="main-class" value="picross.PicrossEditor"/>
 

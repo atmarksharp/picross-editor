@@ -86,7 +86,11 @@ public class PicrossEditor {
     }
 
     protected void finish(){
-        println("Conguraturations!");
+        try{
+            JOptionPane.showMessageDialog(window, "Congratulations!!");
+        }catch(Exception e){
+            println(e);
+        }
     }
 
     class Progress {
@@ -113,7 +117,10 @@ public class PicrossEditor {
 
         public boolean checkVLine(int[] line, int x){
             List<Integer> ans = picross.up.get(x);
-            for (int i=0; i<picross.up.get(x).size(); i++) {
+            if(ans.size() != line.length){
+                return false;
+            }
+            for (int i=0; i<ans.size(); i++) {
                 if(line[i] != ans.get(i)){
                     return false;
                 }
@@ -123,7 +130,10 @@ public class PicrossEditor {
 
         public boolean checkHLine(int[] line, int y){
             List<Integer> ans = picross.left.get(y);
-            for (int i=0; i<picross.left.get(y).size(); i++) {
+            if(ans.size() != line.length){
+                return false;
+            }
+            for (int i=0; i<ans.size(); i++) {
                 if(line[i] != ans.get(i)){
                     return false;
                 }
