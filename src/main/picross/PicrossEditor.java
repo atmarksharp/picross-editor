@@ -91,14 +91,6 @@ public class PicrossEditor {
         }
     }
 
-    public int[] convertIntegers(Integer[] integers){
-        int[] ret = new int[integers.length];
-        for(int i=0; i < ret.length; i++){
-            ret[i] = integers[i].intValue();
-        }
-        return ret;
-    }
-
     class Progress {
         protected Picross picross;
         protected PixelType[] pixels;
@@ -201,7 +193,7 @@ public class PicrossEditor {
                 list.add(0);
             }
 
-            return convertIntegers(list.toArray(new Integer[]{}));
+            return ArrayUtil.toPrimitives(list.toArray(new Integer[]{}));
         }
 
         public PixelType[] getVLine(int x){

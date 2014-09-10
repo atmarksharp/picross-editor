@@ -259,7 +259,7 @@ public class PicrossEditorTest {
 
         p.picross = p.createPicross("test",1,1,list,list);
         // 1x1:
-        // @
+        // ■
 
         p.progress = p.createProgress(p.picross);
         p.progress.pixels = new PixelType[]{PixelType.FILL};
@@ -286,8 +286,8 @@ public class PicrossEditorTest {
 
         p.picross = p.createPicross("test2",2,2,list,list);
         // 2x2:
-        // @X
-        // XX
+        // ■╳
+        // ╳╳
 
         p.progress = p.createProgress(p.picross);
         p.progress.pixels = new PixelType[]{fill, nofill, nofill, nofill};
@@ -325,6 +325,56 @@ public class PicrossEditorTest {
 
         PixelType fill = PixelType.FILL;
         PixelType nofill = PixelType.NOFILL;
+
+        PixelType[] list =
+            new PixelType[]{nofill,nofill,fill,fill,fill,nofill};
+
+        List<Tuple2<PixelType,Integer>> shrinked = p.progress.shrink(list);
+
+        println(outContent);
+
+        assertEquals(PixelType.NOFILL, shrinked.get(0)._1);
+        assertEquals(2, (int)shrinked.get(0)._2);
+        assertEquals(PixelType.FILL, shrinked.get(1)._1);
+        assertEquals(3, (int)shrinked.get(1)._2);
+        assertEquals(PixelType.NOFILL, shrinked.get(2)._1);
+        assertEquals(1, (int)shrinked.get(2)._2);
+    }
+
+    @Test
+    public void checkNumbersTest(){
+        PicrossEditorMock p = new PicrossEditorMock();
+
+        List<List<Integer>> list1 = new ArrayList<List<Integer>>();
+        List<Integer> l_1 = null;
+        // List<Integer> l_1 = new ArrayList<Integer>(new Integer[]{3,2,3});
+        list1.add(l_1);
+
+        List<List<Integer>> list2 = new ArrayList<List<Integer>>();
+        List<Integer> l1 = new ArrayList<Integer>();
+        List<Integer> l2 = new ArrayList<Integer>();
+        l1.add(1);
+        l2.add(0);
+        list2.add(l1);
+        list2.add(l1);
+        list2.add(l1);
+        list2.add(l2);
+        list2.add(l2);
+        list2.add(l1);
+        list2.add(l1);
+        list2.add(l2);
+        list2.add(l1);
+        list2.add(l1);
+        list2.add(l1);
+
+        PixelType fill = PixelType.FILL;
+        PixelType nofill = PixelType.NOFILL;
+
+        p.picross = p.createPicross("checkNumbers",1,11,list1,list2);
+        // 1x11:
+        // ■■■■╳╳╳■■╳■■■
+
+        p.progress.pixels = new PixelType[]{fill, nofill, nofill, nofill};
 
         PixelType[] list =
             new PixelType[]{nofill,nofill,fill,fill,fill,nofill};
