@@ -251,10 +251,8 @@ public class PicrossEditorTest {
     @Test
     public void parseLineTest(){
         PicrossEditorMock p = new PicrossEditorMock();
-        List<List<Integer>> list = new ArrayList<List<Integer>>();
-        List<Integer> l = new ArrayList<Integer>();
-        l.add(1);
-        list.add(l);
+        List<Integer> l = Arrays.asList(1);
+        List<List<Integer>> list = Arrays.asList(l);
 
         p.picross = p.createPicross("test",1,1,list,list);
         // 1x1:
