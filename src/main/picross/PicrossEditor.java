@@ -28,11 +28,8 @@ import java.awt.Graphics2D;
 import java.awt.image.*;
 import java.awt.event.*;
 
-// import org.apache.commons.lang3.ArrayUtils;
-
-
 public class PicrossEditor {
-    protected int pixelSize = 30;
+    protected int pixelSize = 20;
     protected int imageUnitSize = 40;
     protected int boldLineThickness = 3;
     protected int normalLineThickness = 1;
@@ -428,12 +425,12 @@ public class PicrossEditor {
         }
 
         if(p.width != p.up.size()){
-            printFileFormatError("Size of W (width) and UP should be the same", filename);
+            printFileFormatError("'W' and 'size of UP' is different", filename);
             flag = false;
         }
 
         if(p.height != p.left.size()){
-            printFileFormatError("Size of H (height) and LEFT should be the same", filename);
+            printFileFormatError("'H' and 'size of LEFT' is different", filename);
             flag = false;
         }
 
