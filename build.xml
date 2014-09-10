@@ -3,8 +3,8 @@
   <property name="jar-name" value="picross-editor"/>
   <property name="main-class" value="picross.PicrossEditor"/>
 
-  <property name="src" value="src/main" />
-  <property name="test" value="src/test" />
+  <property name="src.main" value="src/main" />
+  <property name="src.test" value="src/test" />
   <property name="lib" value="lib"/>
   <property name="resource" value="resource"/>
   <property name="build" value="build"/>
@@ -21,6 +21,10 @@
 
   <!-- test -->
   <target name="test" depends="compile-for-debug">
+    <condition property="test" else="*">
+      <isset property="test"/>
+    </condition>
+
     <junit printsummary="yes" fork="true">
       <classpath>
         <pathelement path="${build}/classes"/>
@@ -30,7 +34,7 @@
       <formatter type="plain" usefile="false"/>
       <batchtest>
         <fileset dir="${build}/test">
-          <include name="**/*Test.class"/>
+          <include name="**/${test}Test.class"/>
         </fileset>
       </batchtest>
     </junit>
@@ -39,17 +43,17 @@
   <target name="compile-for-debug" depends="resolve">
     <delete dir="${build}/classes" />
     <mkdir dir="${build}/classes" />
-    <javac srcdir="${src}" destdir="${build}/classes" debug="on" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
+    <javac srcdir="${src.main}" destdir="${build}/classes" debug="on" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
 
     <mkdir dir="${build}/test"/>
-    <javac srcdir="${test}" destdir="${build}/test" debug="on" classpath="${build}/classes" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
+    <javac srcdir="${src.test}" destdir="${build}/test" debug="on" classpath="${build}/classes" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
   </target>
 
   <!-- compile -->
   <target name="compile" depends="resolve">
     <delete dir="${build}"/>
     <mkdir dir="${build}/classes" />
-    <javac srcdir="${src}" destdir="${build}/classes" optimize="3" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
+    <javac srcdir="${src.main}" destdir="${build}/classes" optimize="3" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
   </target>
 
   <!-- run -->

@@ -28,6 +28,8 @@ import java.awt.Graphics2D;
 import java.awt.image.*;
 import java.awt.event.*;
 
+import picross.util.*;
+
 public class PicrossEditor {
     protected int pixelSize = 20;
     protected int imageUnitSize = 40;
@@ -50,7 +52,6 @@ public class PicrossEditor {
     protected JPanel leftColumn;
     protected JPanel upColumn;
     protected JPanel body;
-    protected enum PixelType {NOFILL, FILL, CROSS, GUESS_NOFILL ,GUESS_FILL, GUESS_CROSS, CHECK}
 
     protected BufferedImage pixelImage;
     protected Map<Integer,BufferedImage> imageCache = new HashMap<Integer, BufferedImage>();
@@ -146,6 +147,35 @@ public class PicrossEditor {
             return true;
         }
 
+        public List<Tuple2<PixelType, Integer>> shrink(PixelType[] line){
+            List<Tuple2<PixelType, Integer>> list = new ArrayList<Tuple2<PixelType, Integer>>();
+            PixelType past = null;
+            PixelType cur = null;
+            int count = 0;
+
+            for (int i=0; i<line.length; i++) {
+                cur = line[i];
+
+                if(past != null && past == cur){
+                    count++;
+                }else if(past == null || past != cur){
+                    if(count > 0){
+                        list.add(Tuple._(past, count));
+                    }
+                    past = cur;
+                    count = 1;
+                }
+            }
+
+            if(cur != null){
+                list.add(Tuple._(cur, count));
+            }
+
+            println(count);
+
+            return list;
+        }
+
         public int[] parseLine(PixelType[] line){
             boolean counting = false;
             int count = 0;
@@ -218,11 +248,21 @@ public class PicrossEditor {
                 pixels[i] = PixelType.NOFILL;
             }
         }
+
+        // for test only
+        public Progress(){}
     }
 
     // for test only
     protected Progress createProgress(Picross p){
         return new Progress(p);
+    }
+    protected Progress createProgress(Picross p, boolean forceNull){
+        if(forceNull){
+            return new Progress();
+        }else{
+            return new Progress(p);
+        }
     }
 
     class PicrossListener implements MouseListener, MouseMotionListener {

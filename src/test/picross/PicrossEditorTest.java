@@ -14,6 +14,7 @@ import java.io.*;
 import java.security.Permission;
 
 import picross.PicrossEditor;
+import picross.util.*;
 
 
 // =========================
@@ -134,7 +135,7 @@ public class PicrossEditorTest {
     public void noNewLineTest() throws IOException {
         PicrossEditorMock p = new PicrossEditorMock();
 
-        File file = new File("examples/e.txt");
+        File file = new File("examples/e-8x8.txt");
         assertTrue(file != null && file.exists());
 
         BufferedReader br = null;
@@ -155,7 +156,7 @@ public class PicrossEditorTest {
     @Test
     public void parseTest(){
         try{
-            PicrossEditor p = new PicrossEditor(new String[]{"examples/e.txt"}, new String[]{"-r"});
+            PicrossEditor p = new PicrossEditor(new String[]{"examples/e-8x8.txt"}, new String[]{"-r"});
         }catch(ExitException e){
             String s = 
                 "W = 8\n" +
@@ -261,11 +262,10 @@ public class PicrossEditorTest {
         // @
 
         p.progress = p.createProgress(p.picross);
-        p.progress.pixels = new PicrossEditorMock.PixelType[]{PicrossEditorMock.PixelType.FILL};
+        p.progress.pixels = new PixelType[]{PixelType.FILL};
 
-        assertEquals(PicrossEditorMock.PixelType.FILL, p.progress.getPixel(0,0));
-
-        assertEquals(PicrossEditorMock.PixelType.FILL, p.progress.getVLine(0)[0]);
+        assertEquals(PixelType.FILL, p.progress.getPixel(0,0));
+        assertEquals(PixelType.FILL, p.progress.getVLine(0)[0]);
         assertEquals(1, p.progress.parseLine(p.progress.getVLine(0))[0]);
     }
 
@@ -281,8 +281,8 @@ public class PicrossEditorTest {
         list.add(l1);
         list.add(l2);
 
-        PicrossEditorMock.PixelType fill = PicrossEditorMock.PixelType.FILL;
-        PicrossEditorMock.PixelType nofill = PicrossEditorMock.PixelType.NOFILL;
+        PixelType fill = PixelType.FILL;
+        PixelType nofill = PixelType.NOFILL;
 
         p.picross = p.createPicross("test2",2,2,list,list);
         // 2x2:
@@ -290,7 +290,7 @@ public class PicrossEditorTest {
         // XX
 
         p.progress = p.createProgress(p.picross);
-        p.progress.pixels = new PicrossEditorMock.PixelType[]{fill, nofill, nofill, nofill};
+        p.progress.pixels = new PixelType[]{fill, nofill, nofill, nofill};
 
         assertEquals(2, p.picross.width);
         assertEquals(2, p.picross.height);
@@ -316,5 +316,28 @@ public class PicrossEditorTest {
         assertEquals(0, p.progress.parseLine(p.progress.getVLine(1))[0]);
 
         assertEquals(true, p.progress.checkFinished());
+    }
+
+    @Test
+    public void shrinkLineTest(){
+        PicrossEditorMock p = new PicrossEditorMock();
+        p.progress = p.createProgress(null, true);
+
+        PixelType fill = PixelType.FILL;
+        PixelType nofill = PixelType.NOFILL;
+
+        PixelType[] list =
+            new PixelType[]{nofill,nofill,fill,fill,fill,nofill};
+
+        List<Tuple2<PixelType,Integer>> shrinked = p.progress.shrink(list);
+
+        println(outContent);
+
+        assertEquals(PixelType.NOFILL, shrinked.get(0)._1);
+        assertEquals(2, (int)shrinked.get(0)._2);
+        assertEquals(PixelType.FILL, shrinked.get(1)._1);
+        assertEquals(3, (int)shrinked.get(1)._2);
+        assertEquals(PixelType.NOFILL, shrinked.get(2)._1);
+        assertEquals(1, (int)shrinked.get(2)._2);
     }
 }
