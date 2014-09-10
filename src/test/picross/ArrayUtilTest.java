@@ -8,10 +8,28 @@ import picross.util.*;
 
 public class ArrayUtilTest {
   @Test
-  public void joinTest(){
+  public void Integer_joinTest(){
     Integer[] nums = new Integer[]{1,2,3,4};
     String s = ArrayUtil.join(nums,",");
     assertEquals("1,2,3,4", s);
+  }
+
+  @Test
+  public void String_joinTest(){
+    String[] list = new String[]{"a","b","c"};
+    String s = ArrayUtil.join(list," ");
+    assertEquals("a b c", s);
+  }
+
+  @Test
+  public void List_Integer_joinTest(){
+    List<Integer> nums = new ArrayList<Integer>();
+    nums.add(1);
+    nums.add(2);
+    nums.add(3);
+
+    String s = ArrayUtil.join(nums,"/");
+    assertEquals("1/2/3", s);
   }
 
   @Test

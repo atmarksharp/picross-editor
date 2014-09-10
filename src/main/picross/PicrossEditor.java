@@ -163,8 +163,6 @@ public class PicrossEditor {
                 list.add(Tuple._(cur, count));
             }
 
-            println(count);
-
             return list;
         }
 
