@@ -7,6 +7,5 @@
 
     <dependencies>
       <dependency org="junit" name="junit" rev="4.11" conf="web->default"/>
-      <dependency org="org.apache.commons" name="commons-lang3" rev="3.3.2" conf="web->default"/>
     </dependencies>
 </ivy-module>

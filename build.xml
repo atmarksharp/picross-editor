@@ -86,10 +86,10 @@
     <java jar="${build}/jar/${jar-name}-${version}.jar" fork="true"/>
   </target>
   
-  <!-- run-jar -->
+  <!-- clean -->
   <target name="clean">
     <delete dir="${build}"/>
-    <!-- <delete dir="${lib}"/> -->
+    <delete dir="${lib}"/>
   </target>
 
 </project>
