@@ -37,6 +37,7 @@
   </target>
 
   <target name="compile-for-debug" depends="resolve">
+    <delete dir="${build}/classes" />
     <mkdir dir="${build}/classes" />
     <javac srcdir="${src}" destdir="${build}/classes" debug="on" classpathref="lib.path.id" target="1.6" source="1.6" executable="${javac}" encoding="UTF-8"/>
 
@@ -54,7 +55,7 @@
   <!-- run -->
   <target name="run">
     <java classname="${main-class}" classpath="${build}/classes" fork="true" classpathref="lib.path.id">
-      <arg value="examples/e.txt"/>
+      <arg value="examples/e-8x8.txt"/>
     </java>
   </target>
 

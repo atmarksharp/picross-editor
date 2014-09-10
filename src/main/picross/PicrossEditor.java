@@ -196,10 +196,6 @@ public class PicrossEditor {
             }else{
                 pixels[index] = type;
             }
-
-            if(checkFinished()){
-                finish();
-            }
         }
 
         public PixelType getPixel(int index){
@@ -661,10 +657,13 @@ public class PicrossEditor {
         if(img == null){
             cell.add(new JLabel());
             cell.revalidate();
-            return;
         }else{
             cell.add(new JLabel(new ImageIcon(img)));
             cell.revalidate();
+        }
+
+        if(progress.checkFinished()){
+            finish();
         }
     }
 
@@ -765,21 +764,18 @@ public class PicrossEditor {
 
         // Set Number Rows on the Left Column
         leftNumberCells = new ArrayList<List<JPanel>>();
-        leftColumn.setLayout(new GridLayout(leftColumnHeight/pixelSize, 1));
+        leftColumn.setLayout(new GridLayout(leftColumnHeight/pixelSize, 1, 0, 0));
         for(int i=0; i<leftColumnHeight/pixelSize; i++) {
             numRow = new JPanel();
             numRow.setBackground(null);
             numRow.setBorder(normalLine);
-            numRow.setLayout(new GridLayout(1, leftColumnWidth/pixelSize));
+            numRow.setLayout(new GridLayout(1, leftColumnWidth/pixelSize, 0, 0));
 
             numCell = new ArrayList<JPanel>();
 
             for (int j=0; j<leftColumnWidth/pixelSize; j++) {
                 numBox = new JPanel();
-                FlowLayout layout = new FlowLayout();
-                layout.setVgap(0);
-                layout.setHgap(0);
-                numBox.setLayout(layout);
+                numBox.setLayout(new GridLayout(1,1,0,0));
                 numBox.setBackground(null);
                 numBox.setBorder(BorderFactory.createMatteBorder(0,normalLineThickness,0,0,Color.black));
                 numBox.add(leftNumberLabel(j,i,leftColumnWidth/pixelSize));
@@ -794,21 +790,18 @@ public class PicrossEditor {
 
         // Set Number Rows on the Up Column
         upNumberCells = new ArrayList<List<JPanel>>();
-        upColumn.setLayout(new GridLayout(1, upColumnWidth/pixelSize));
+        upColumn.setLayout(new GridLayout(1, upColumnWidth/pixelSize, 0, 0));
         for(int i=0; i<upColumnWidth/pixelSize; i++) {
             numRow = new JPanel();
             numRow.setBackground(null);
             numRow.setBorder(new LineBorder(Color.black, normalLineThickness));
-            numRow.setLayout(new GridLayout(upColumnHeight/pixelSize, 1));
+            numRow.setLayout(new GridLayout(upColumnHeight/pixelSize, 1, 0, 0));
 
             numCell = new ArrayList<JPanel>();
 
             for (int j=0; j<upColumnHeight/pixelSize; j++) {
                 numBox = new JPanel();
-                FlowLayout layout = new FlowLayout();
-                layout.setVgap(0);
-                layout.setHgap(0);
-                numBox.setLayout(layout);
+                numBox.setLayout(new GridLayout(1,1,0,0));
                 numBox.setBackground(null);
                 numBox.setBorder(BorderFactory.createMatteBorder(normalLineThickness,0,0,0,Color.black));
                 numBox.add(upNumberLabel(j,i,upColumnHeight/pixelSize));
@@ -823,14 +816,11 @@ public class PicrossEditor {
 
         // Set Cells on the Body
         cells = new ArrayList<JPanel>();
-        body.setLayout(new GridLayout(bodyHeight/pixelSize, bodyWidth/pixelSize));
+        body.setLayout(new GridLayout(bodyHeight/pixelSize, bodyWidth/pixelSize, 0, 0));
         for(int i=0; i<(bodyWidth*bodyHeight)/(pixelSize*pixelSize); i++) {
             numBox = new JPanel();
-            FlowLayout layout = new FlowLayout();
-            layout.setVgap(0);
-            layout.setHgap(0);
             numBox.add(new JLabel(new ImageIcon(cellImage(PixelType.NOFILL))));
-            numBox.setLayout(layout);
+            numBox.setLayout(new GridLayout(1,1,0,0));
             numBox.setBackground(null);
             numBox.setBorder(normalLine);
             body.add(numBox);
