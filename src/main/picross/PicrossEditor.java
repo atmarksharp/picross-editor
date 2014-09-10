@@ -654,6 +654,8 @@ public class PicrossEditor {
 
         if(pixelImage == null){
             try{
+                // [ TODO ] : Do not erase below.
+                //
                 // if(runningInJar){
                 //     pixelImage = ImageIO.read(getClass().getResource("./pixel_images.png"));
                 // }else{
