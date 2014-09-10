@@ -28,6 +28,8 @@ import java.awt.Graphics2D;
 import java.awt.image.*;
 import java.awt.event.*;
 
+import java.net.URL;
+
 import picross.util.*;
 
 public class PicrossEditor {
@@ -652,14 +654,11 @@ public class PicrossEditor {
 
         if(pixelImage == null){
             try{
-                // [ TODO ] : Do not erase below.
-                //
-                // if(runningInJar){
-                //     pixelImage = ImageIO.read(getClass().getResource("./pixel_images.png"));
-                // }else{
-                //     pixelImage = ImageIO.read(new File("resource/pixel_images.png"));
-                // }
-                pixelImage = ImageIO.read(new File("resource/pixel_images.png"));
+                if(runningInJar){
+                    pixelImage = ImageIO.read(PicrossEditor.class.getClassLoader().getResource("pixel_images.png"));
+                }else{
+                    pixelImage = ImageIO.read(new File("resource/pixel_images.png"));
+                }
             }catch(Exception e){
                 e.printStackTrace();
                 System.exit(1);

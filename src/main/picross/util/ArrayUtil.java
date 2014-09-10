@@ -32,6 +32,20 @@ public class ArrayUtil {
     return sb.toString();
   }
 
+  public static <T> String join(Enumeration<T> e ,String sp){
+    StringBuffer sb = new StringBuffer();
+    String splitter;
+
+    splitter = "";
+    while(e.hasMoreElements()){
+      sb.append(splitter);
+      sb.append(e.nextElement().toString());
+      splitter = sp;
+    }
+
+    return sb.toString();
+  }
+
   public static short[] toPrimitives(Short[] v){
       short[] r=new short[v.length];for(int i=0;i<r.length;i++)r[i]=v[i].shortValue();return r;
   }

@@ -1,5 +1,5 @@
 <project name="picross-editor" default="compile-run" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
-  <property name="version" value="0.1.13"/>
+  <property name="version" value="0.1.14"/>
   <property name="jar-name" value="picross-editor"/>
   <property name="main-class" value="picross.PicrossEditor"/>
 
@@ -72,14 +72,11 @@
     <delete file="${build}/jar/${jar-name}-${version}.jar"/>
     <mkdir dir="${build}/jar" />
     <jar basedir="${build}/classes" jarfile="${build}/jar/${jar-name}-${version}.jar">
-      <restrict>
-        <name name="**/*.class"/>
-
-        <fileset dir="${resource}">
-          <include name="**/*"/>
-          <exclude name="**/.DS_Store"/>
-        </fileset>
-      </restrict>
+      <fileset dir="${resource}">
+        <include name="**/*"/>
+        <exclude name="**/.DS_Store"/>
+      </fileset>
+      <fileset dir="${build}/classes" includes="**/*.class"/>
       <manifest>
         <attribute name="Main-Class" value="${main-class}"/>
       </manifest>
