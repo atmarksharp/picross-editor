@@ -141,6 +141,58 @@ public class PicrossEditor {
             return true;
         }
 
+        public Tuple2<List<Boolean>,List<Boolean>> checkNumbers(int x, int y){
+            List<Integer> hnums = picross.left.get(y);
+            List<Integer> vnums = picross.up.get(x);
+            List<Tuple2<PixelType, Integer>> hline = shrink(getHLine(y));
+            List<Tuple2<PixelType, Integer>> vline = shrink(getVLine(x));
+            List<Integer> hparsed = parseLineFromShrink(hline);
+            List<Integer> vparsed = parseLineFromShrink(vline);
+
+            Tuple2<List<Boolean>,List<Boolean>> checked =
+                Tuple._(
+                    Arrays.asList(new Boolean[hnums.size()]), // H
+                    Arrays.asList(new Boolean[vnums.size()])); // V
+
+            for (int i=0; i<checked._1.size(); i++) {
+                checked._1.set(i,false);
+            }
+            for (int i=0; i<checked._2.size(); i++) {
+                checked._2.set(i,false);
+            }
+
+            // for HLine
+            if(hnums.size() == 1 && hparsed.size() == 1){
+                if(hnums.get(0) == hparsed.get(0)){
+                    checked._1.set(0,true);
+                }
+            }else{
+                // TODO: implement
+            }
+
+            // for VLine
+            if(vnums.size() == 1 && vparsed.size() == 1){
+                if(vnums.get(0) == vparsed.get(0)){
+                    checked._2.set(0,true);
+                }
+            }else{
+                // TODO: implement
+            }
+
+            return checked;
+        }
+
+        public List<Integer> parseLineFromShrink(List<Tuple2<PixelType, Integer>> shrink){
+            List<Integer> list = new ArrayList<Integer>();
+            for (Tuple2<PixelType, Integer> t : shrink) {
+                if(t._1 == PixelType.FILL){
+                    list.add(t._2);
+                }
+            }
+
+            return list;
+        }
+
         public List<Tuple2<PixelType, Integer>> shrink(PixelType[] line){
             List<Tuple2<PixelType, Integer>> list = new ArrayList<Tuple2<PixelType, Integer>>();
             PixelType past = null;
@@ -149,7 +201,6 @@ public class PicrossEditor {
 
             for (int i=0; i<line.length; i++) {
                 cur = line[i];
-
                 if(past != null && past == cur){
                     count++;
                 }else if(past == null || past != cur){
@@ -160,11 +211,9 @@ public class PicrossEditor {
                     count = 1;
                 }
             }
-
             if(cur != null){
                 list.add(Tuple._(cur, count));
             }
-
             return list;
         }
 
@@ -587,6 +636,13 @@ public class PicrossEditor {
         return new Point(x/pixelSize, y/pixelSize);
     }
 
+    protected Point calcPositionFromIndex(int index){
+        int x = index % picross.width;
+        int y = (index - x) / picross.width;
+
+        return new Point(x,y);
+    }
+
     protected Integer calcIndex(int x, int y){
         if(x >= picross.width || y >= picross.height){
             return null;
@@ -692,6 +748,10 @@ public class PicrossEditor {
             cell.add(new JLabel(new ImageIcon(img)));
             cell.revalidate();
         }
+
+
+        Point p = calcPositionFromIndex(index);
+        Tuple2<List<Boolean>,List<Boolean>> checked = progress.checkNumbers(p.x, p.y);
 
         if(progress.checkFinished()){
             finish();

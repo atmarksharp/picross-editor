@@ -333,7 +333,7 @@ public class PicrossEditorTest {
     }
 
     @Test
-    public void checkNumbersTest(){
+    public void shrinkTest(){
         PicrossEditorMock p = new PicrossEditorMock();
 
         List<Integer> l1 = Arrays.asList(3,2,3);
@@ -364,5 +364,138 @@ public class PicrossEditorTest {
         assertEquals(3, (int)shrinked.get(1)._2);
         assertEquals(PixelType.NOFILL, shrinked.get(2)._1);
         assertEquals(1, (int)shrinked.get(2)._2);
+    }
+
+    @Test
+    public void calcPositionFromIndexTest(){
+        PicrossEditorMock pe = new PicrossEditorMock();
+
+        List<Integer> l = Arrays.asList(5);
+        List<List<Integer>> list = Arrays.asList(l);
+
+        pe.picross = pe.createPicross("clacPosition",5,5,list,list);
+
+        Point p;
+        p = pe.calcPositionFromIndex(3);
+        assertEquals(3, p.x);
+        assertEquals(0, p.y);
+
+        p = pe.calcPositionFromIndex(7);
+        assertEquals(2, p.x);
+        assertEquals(1, p.y);
+
+        p = pe.calcPositionFromIndex(18);
+        assertEquals(3, p.x);
+        assertEquals(3, p.y);
+    }
+
+    @Test
+    public void parseFromShrinkTest(){
+        PicrossEditorMock p = new PicrossEditorMock();
+
+        List<Integer> l1 = Arrays.asList(3,2,3);
+        List<List<Integer>> list1 = Arrays.asList(l1);
+
+        List<Integer> f = Arrays.asList(1);
+        List<Integer> n = Arrays.asList(0);
+        List<List<Integer>> list2 = Arrays.asList(f,f,f,n,n,f,f,n,f,f,f);
+
+        PixelType fill = PixelType.FILL;
+        PixelType nofill = PixelType.NOFILL;
+
+        p.picross = p.createPicross("checkNumbers",1,11,list1,list2);
+        // 1x11:
+        // ■■■■╳╳╳■■╳■■■
+
+        p.progress = p.createProgress(p.picross);
+        p.progress.pixels = new PixelType[]{fill, nofill, nofill, nofill};
+
+        PixelType[] list =
+            new PixelType[]{nofill,nofill,fill,fill,fill,nofill};
+
+        List<Tuple2<PixelType,Integer>> shrinked = p.progress.shrink(list);
+
+        assertEquals(PixelType.NOFILL, shrinked.get(0)._1);
+        assertEquals(2, (int)shrinked.get(0)._2);
+        assertEquals(PixelType.FILL, shrinked.get(1)._1);
+        assertEquals(3, (int)shrinked.get(1)._2);
+        assertEquals(PixelType.NOFILL, shrinked.get(2)._1);
+        assertEquals(1, (int)shrinked.get(2)._2);
+
+        List<Integer> parsed = p.progress.parseLineFromShrink(shrinked);
+
+        assertEquals(1, (int)parsed.size());
+        assertEquals(3, (int)parsed.get(0));
+    }
+
+    @Test
+    public void checkNumbersCheckTest(){
+        PicrossEditorMock p = new PicrossEditorMock();
+
+        List<Integer> l = Arrays.asList(1);
+        List<List<Integer>> list = Arrays.asList(l);
+
+        PixelType fill = PixelType.FILL;
+        PixelType nofill = PixelType.NOFILL;
+
+        p.picross = p.createPicross("test",1,1,list,list);
+        // 1x1:
+        // ■
+
+        p.progress = p.createProgress(p.picross);
+        p.progress.pixels = new PixelType[]{fill};
+
+        int x = 0;
+        int y = 0;
+
+        List<Integer> hnums = p.picross.left.get(y);
+        List<Integer> vnums = p.picross.up.get(x);
+        List<Tuple2<PixelType, Integer>> hline = p.progress.shrink(p.progress.getHLine(y));
+        List<Tuple2<PixelType, Integer>> vline = p.progress.shrink(p.progress.getVLine(x));
+        List<Integer> hparsed = p.progress.parseLineFromShrink(hline);
+        List<Integer> vparsed = p.progress.parseLineFromShrink(vline);
+
+        assertEquals(1, hnums.size());
+        assertEquals(1, vnums.size());
+        assertEquals(1, (int)hnums.get(0));
+        assertEquals(1, (int)vnums.get(0));
+
+        assertEquals(1, hline.size());
+        assertEquals(1, vline.size());
+        assertEquals(PixelType.FILL, hline.get(0)._1);
+        assertEquals(1, (int)hline.get(0)._2);
+        assertEquals(PixelType.FILL, vline.get(0)._1);
+        assertEquals(1, (int)vline.get(0)._2);
+
+        assertEquals(1, hparsed.size());
+        assertEquals(1, vparsed.size());
+        assertEquals(1, (int)hparsed.get(0));
+        assertEquals(1, (int)vparsed.get(0));
+    }
+
+    @Test
+    public void checkNumbersTest(){
+        PicrossEditorMock p = new PicrossEditorMock();
+
+        List<Integer> l = Arrays.asList(1);
+        List<List<Integer>> list = Arrays.asList(l);
+
+        PixelType fill = PixelType.FILL;
+        PixelType nofill = PixelType.NOFILL;
+
+        p.picross = p.createPicross("test",1,1,list,list);
+        // 1x1:
+        // ■
+
+        p.progress = p.createProgress(p.picross);
+        p.progress.pixels = new PixelType[]{fill};
+
+        Tuple2<List<Boolean>,List<Boolean>> checked = p.progress.checkNumbers(0,0);
+
+        assertEquals(1, checked._1.size());
+        assertEquals(1, checked._2.size());
+
+        assertEquals(true, (boolean)checked._1.get(0));
+        assertEquals(true, (boolean)checked._2.get(0));
     }
 }

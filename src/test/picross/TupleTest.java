@@ -42,4 +42,18 @@ public class TupleTest {
     assertEquals(4.5F, (float)t._(4, float.class), 0.01F);
     assertEquals(3, t._(5, int[].class)[0]);
   }
+
+  @Test
+  public void updateTest(){
+    Tuple2<Integer,String> t = Tuple._(1,"hello");
+    assertEquals(2, t.length);
+    assertEquals(1, (int)t._1);
+    assertEquals("hello", t._2);
+
+    t._1 = 7;
+    t._2 = "foo";
+    assertEquals(2, t.length);
+    assertEquals(7, (int)t._1);
+    assertEquals("foo", t._2);
+  }
 }
