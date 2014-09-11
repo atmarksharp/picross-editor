@@ -59,6 +59,9 @@ public class PicrossEditor {
     protected List<List<JPanel>> leftNumberCells;
     protected List<List<JPanel>> upNumberCells;
 
+    public List<List<Boolean>> leftChecked;
+    public List<List<Boolean>> upChecked;
+
     protected PicrossListener picrossListener;
     protected Progress progress;
 
@@ -664,12 +667,26 @@ public class PicrossEditor {
         return Collections.max(sizes);
     } 
 
-    protected void setChecked(JPanel cell, int n){
+    protected void setChecked(JPanel numberCell, int n){
         System.out.println("checked: " + n);
+
+        numberCell.removeAll();
+        BufferedImage img = ImageUtil.checkedNumberImage(n);
+        if(img == null){
+            numberCell.add(new JLabel(String.valueOf(n)));
+        }else{
+            numberCell.add(new JLabel(new ImageIcon(img)));
+        }
     }
 
-    protected void setUnchecked(JPanel cell, int n){
-        System.out.println("unchecked: " + n);
+    protected void setUnchecked(JPanel numberCell, int n){
+        numberCell.removeAll();
+        BufferedImage img = ImageUtil.numberImage(n);
+        if(img == null){
+            numberCell.add(new JLabel(String.valueOf(n)));
+        }else{
+            numberCell.add(new JLabel(new ImageIcon(img)));
+        }
     }
 
     protected void attachCheckMarks(int index){
@@ -1014,6 +1031,9 @@ public class PicrossEditor {
         
         picross = parse(files[0]);
         progress = new Progress(picross);
+
+        leftChecked = new ArrayList<List<Boolean>>(picross.left.size());
+        upChecked = new ArrayList<List<Boolean>>(picross.up.size());
 
         if(showParseResult){
             printParseResult(picross);

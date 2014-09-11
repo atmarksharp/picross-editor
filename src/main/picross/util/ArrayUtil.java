@@ -1,9 +1,26 @@
 package picross.util;
 
 import java.util.*;
+
 import picross.util.ArrayUtil;
 
 public class ArrayUtil {
+  public static <T> List<T> units(T unit, int n){
+    List<T> list = new ArrayList(Arrays.asList());
+    for(int i=0; i<n; i++){
+      list.add(unit);
+    }
+    return list;
+  } 
+
+  public static <T> List<T> fillUntil(int index, T insertValue, List<T> list){
+    List<T> l = units(insertValue, index+1);
+    for (int i=0; i<list.size(); i++) {
+      l.set(i, list.get(i));
+    }
+    return l;
+  }
+
   public static <T> String join(Iterable<T> list, String sp){
     StringBuffer sb = new StringBuffer();
     String splitter;

@@ -23,13 +23,40 @@ public class ArrayUtilTest {
 
   @Test
   public void List_Integer_joinTest(){
-    List<Integer> nums = new ArrayList<Integer>();
-    nums.add(1);
-    nums.add(2);
-    nums.add(3);
-
+    List<Integer> nums = Arrays.asList(1,2,3);
     String s = ArrayUtil.join(nums,"/");
     assertEquals("1/2/3", s);
+  }
+
+  @Test
+  public void unitsTest(){
+    int index = 6;
+    int insertValue = 0;
+    List<Integer> l = ArrayUtil.units(insertValue, index+1);
+
+    assertEquals(7, l.size());
+    assertEquals(0, (int)l.get(0));
+    assertEquals(0, (int)l.get(1));
+    assertEquals(0, (int)l.get(2));
+    assertEquals(0, (int)l.get(3));
+    assertEquals(0, (int)l.get(4));
+    assertEquals(0, (int)l.get(5));
+    assertEquals(0, (int)l.get(6));
+  }
+
+  @Test
+  public void fillUntilTest(){
+    List<Integer> list = Arrays.asList(1,2,3);
+    List<Integer> nums = ArrayUtil.fillUntil(6, 0, list);
+
+    assertEquals(7, nums.size());
+    assertEquals(1, (int)nums.get(0));
+    assertEquals(2, (int)nums.get(1));
+    assertEquals(3, (int)nums.get(2));
+    assertEquals(0, (int)nums.get(3));
+    assertEquals(0, (int)nums.get(4));
+    assertEquals(0, (int)nums.get(5));
+    assertEquals(0, (int)nums.get(6));
   }
 
   @Test

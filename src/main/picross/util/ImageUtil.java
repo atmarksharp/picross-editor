@@ -44,6 +44,21 @@ public class ImageUtil {
     runningInJar = s.startsWith("jar");
   }
 
+  public static BufferedImage checkedNumberImage(int n){
+    BufferedImage numberImg = numberImage(n);
+    BufferedImage checkImg = cellImage(PixelType.CHECK);
+    BufferedImage retImage =
+      new BufferedImage(numberImg.getWidth(null),
+                        numberImg.getHeight(null),
+                        BufferedImage.TYPE_INT_ARGB);
+    Graphics2D g = (Graphics2D)retImage.getGraphics();
+    g.drawImage(numberImg, 0, 0, null);
+    g.drawImage(checkImg, 0, 0, null);
+    g.dispose();
+
+    return retImage;
+  }
+
   public static BufferedImage convertToBuffered(Image img){
     BufferedImage retImage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
     Graphics2D g = (Graphics2D)retImage.getGraphics();

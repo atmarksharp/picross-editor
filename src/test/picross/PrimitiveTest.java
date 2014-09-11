@@ -93,4 +93,31 @@ public class PrimitiveTest {
     assertTrue(Person.TOM == Person.TOM);
     assertTrue(Person.TOM != Person.EMILY);
   }
+
+  @Test
+  public void listCastTest(){
+    List l;
+    {
+        l = Arrays.asList(1,2,3);
+    }
+    {
+        assertEquals(2, l.get(1));
+    }
+  }
+
+  @Test
+  public void listCreationTest(){
+    List<Integer> l = new ArrayList<Integer>();
+    l.add(1);
+    l.add(2);
+    l.add(3);
+
+    List<Integer> list = Arrays.asList(0,0,0,0,0);
+    Collections.copy(list,l);
+    assertEquals(1, (int)list.get(0));
+    assertEquals(2, (int)list.get(1));
+    assertEquals(3, (int)list.get(2));
+    assertEquals(0, (int)list.get(3));
+    assertEquals(0, (int)list.get(4));
+  }
 }
