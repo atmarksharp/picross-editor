@@ -10,7 +10,6 @@ import java.io.IOException;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.imageio.ImageIO;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -24,6 +23,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Component;
 
 import java.awt.image.*;
 import java.awt.event.*;
@@ -33,10 +33,10 @@ import java.net.URL;
 import picross.util.*;
 
 public class PicrossEditor {
-    protected int pixelSize = 20;
-    protected int imageUnitSize = 40;
-    protected int boldLineThickness = 3;
-    protected int normalLineThickness = 1;
+    public int pixelSize = 20;
+    public final int imageUnitSize = 40;
+    public final int boldLineThickness = 3;
+    public final int normalLineThickness = 1;
 
     protected Border boldLine = new LineBorder(Color.black, boldLineThickness);
     protected Border haflLine = new LineBorder(Color.black, boldLineThickness/2);
@@ -55,8 +55,6 @@ public class PicrossEditor {
     protected JPanel upColumn;
     protected JPanel body;
 
-    protected BufferedImage pixelImage;
-    protected Map<Integer,BufferedImage> imageCache = new HashMap<Integer, BufferedImage>();
     protected List<JPanel> cells;
     protected List<List<JPanel>> leftNumberCells;
     protected List<List<JPanel>> upNumberCells;
@@ -666,81 +664,11 @@ public class PicrossEditor {
         return Collections.max(sizes);
     } 
 
-    protected Point calcImagePosition(int n){
-        return new Point(imageUnitSize*((n-1)%20),imageUnitSize*((n-1)/20));
-    }
-
-    protected BufferedImage convertToBuffered(Image img){
-        BufferedImage retImage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = (Graphics2D)retImage.getGraphics();
-        g.drawImage(img, 0, 0, null);
-        g.dispose();
-
-        return retImage;
-    }
-
-    protected BufferedImage cellImage(PixelType type){
-        if(type == PixelType.NOFILL){
-            return getImage(101, false);
-        }else if(type == PixelType.FILL){
-            return getImage(102, false);
-        }else if(type == PixelType.CROSS){
-            return getImage(103, false);
-        }else if(type == PixelType.GUESS_NOFILL){
-            return getImage(104, false);
-        }else if(type == PixelType.GUESS_FILL){
-            return getImage(105, false);
-        }else if(type == PixelType.GUESS_CROSS){
-            return getImage(106, false);
-        }else if(type == PixelType.CHECK){
-            return getImage(107, false);
-        }else{
-            return null;
-        }
-    }
-
-    protected BufferedImage numberImage(int n){
-        return getImage(n, true);
-    }
-
-    protected BufferedImage getImage(int n, boolean numberOnly){
-        if(numberOnly && n > 100){
-            return null;
-        }
-
-        if(pixelImage == null){
-            try{
-                if(runningInJar){
-                    pixelImage = ImageIO.read(PicrossEditor.class.getClassLoader().getResource("pixel_images.png"));
-                }else{
-                    pixelImage = ImageIO.read(new File("resource/pixel_images.png"));
-                }
-            }catch(Exception e){
-                e.printStackTrace();
-                System.exit(1);
-            }
-        }
-
-        if(imageCache.get(n) == null){
-            Point pt = calcImagePosition(n);
-            BufferedImage img = pixelImage.getSubimage(pt.x, pt.y, imageUnitSize, imageUnitSize);
-            BufferedImage scaled = convertToBuffered(img.getScaledInstance(pixelSize, pixelSize, Image.SCALE_SMOOTH));
-
-            // Cashe an Image
-            imageCache.put(n,scaled);
-
-            return scaled;
-        }else{
-            // Use the Cashed Image
-            return imageCache.get(n);
-        }
-    }
-
-     protected void setCellImage(int index, PixelType type){
+    protected void setCellImage(int index, PixelType type){
         JPanel cell = cells.get(index);
         cell.removeAll();
 
-        BufferedImage img = cellImage(type);
+        BufferedImage img = ImageUtil.cellImage(type);
         if(img == null){
             cell.add(new JLabel());
             cell.revalidate();
@@ -750,8 +678,23 @@ public class PicrossEditor {
         }
 
 
-        Point p = calcPositionFromIndex(index);
-        Tuple2<List<Boolean>,List<Boolean>> checked = progress.checkNumbers(p.x, p.y);
+        // Point p = calcPositionFromIndex(index);
+        // Tuple2<List<Boolean>,List<Boolean>> checked = progress.checkNumbers(p.x, p.y);
+        // if(checked._1.contains(true)){ // Horizontai
+        //     List<Boolean> checks = checked._1;
+        //     Component[] comps = leftColumn.getComponents();
+        //     JPanel rowPanel = (JPanel)comps[p.y];
+        //     for (int i=0; i<rowPanel.getComponents().length; i++) {
+        //         if(checks.get(i) == true){
+        //             // setChecked(comps[p.y][i]);
+        //         }else{
+        //             // setUnchecked(comps[p.y][i]);
+        //         }
+        //     }
+        // }
+        // if(checked._2.contains(true)){ // Vertical
+        
+        // }
 
         if(progress.checkFinished()){
             finish();
@@ -767,7 +710,7 @@ public class PicrossEditor {
         if(id < 0){
             return new JLabel();
         }else{
-            BufferedImage img = numberImage(row.get(id));
+            BufferedImage img = ImageUtil.numberImage(row.get(id));
             if(img == null){
                 return new JLabel(String.valueOf(row.get(id)));
             }else{
@@ -785,7 +728,7 @@ public class PicrossEditor {
         if(id < 0){
             return new JLabel();
         }else{
-            BufferedImage img = numberImage(column.get(id));
+            BufferedImage img = ImageUtil.numberImage(column.get(id));
             if(img == null){
                 return new JLabel(String.valueOf(column.get(id)));
             }else{
@@ -910,7 +853,7 @@ public class PicrossEditor {
         body.setLayout(new GridLayout(bodyHeight/pixelSize, bodyWidth/pixelSize, 0, 0));
         for(int i=0; i<(bodyWidth*bodyHeight)/(pixelSize*pixelSize); i++) {
             numBox = new JPanel();
-            numBox.add(new JLabel(new ImageIcon(cellImage(PixelType.NOFILL))));
+            numBox.add(new JLabel(new ImageIcon(ImageUtil.cellImage(PixelType.NOFILL))));
             numBox.setLayout(new GridLayout(1,1,0,0));
             numBox.setBackground(null);
             numBox.setBorder(normalLine);
@@ -1007,16 +950,11 @@ public class PicrossEditor {
         window.setVisible(true);
     }
 
-    protected void checkIfRunningInJar(){
-        String s = PicrossEditor.class.getResource("PicrossEditor.class").toString();
-        runningInJar = s.startsWith("jar");
+    protected PicrossEditor(){ // for debug only
+        ImageUtil.init(this);
     }
 
-    protected PicrossEditor(){} // for debug
-
     public PicrossEditor(String[] files, String[] opts){
-        checkIfRunningInJar();
-
         if(files.length == 0){
             help();
             System.exit(0);
@@ -1043,6 +981,8 @@ public class PicrossEditor {
             printParseResult(picross);
             System.exit(0);
         }
+
+        ImageUtil.init(this);
 
         initWindow(picross != null? files[0] : null);
     }

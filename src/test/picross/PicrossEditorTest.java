@@ -200,23 +200,23 @@ public class PicrossEditorTest {
 
         final int unit = p.imageUnitSize;
 
-        pt = p.calcImagePosition(1);
+        pt = ImageUtil.calcImagePosition(1);
         assertEquals(0, pt.x);
         assertEquals(0, pt.y);
 
-        pt = p.calcImagePosition(2);
+        pt = ImageUtil.calcImagePosition(2);
         assertEquals(unit*1, pt.x);
         assertEquals(0, pt.y);
 
-        pt = p.calcImagePosition(20);
+        pt = ImageUtil.calcImagePosition(20);
         assertEquals(unit*19, pt.x);
         assertEquals(0, pt.y);
 
-        pt = p.calcImagePosition(21);
+        pt = ImageUtil.calcImagePosition(21);
         assertEquals(0, pt.x);
         assertEquals(unit, pt.y);
 
-        pt = p.calcImagePosition(42);
+        pt = ImageUtil.calcImagePosition(42);
         assertEquals(unit, pt.x);
         assertEquals(unit*2, pt.y);
     }
