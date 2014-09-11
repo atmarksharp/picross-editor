@@ -664,6 +664,58 @@ public class PicrossEditor {
         return Collections.max(sizes);
     } 
 
+    protected void setChecked(JPanel cell, int n){
+        System.out.println("checked: " + n);
+    }
+
+    protected void setUnchecked(JPanel cell, int n){
+        System.out.println("unchecked: " + n);
+    }
+
+    protected void attachCheckMarks(int index){
+        Point p = calcPositionFromIndex(index);
+        Tuple2<List<Boolean>,List<Boolean>> checked = progress.checkNumbers(p.x, p.y);
+
+        // Horizontal
+        {
+            List<Boolean> checks = checked._1;
+            Component[] comps = leftColumn.getComponents();
+            JPanel rowPanel = (JPanel)comps[p.y];
+            List<Integer> row = picross.left.get(p.y);
+
+            for (int i=0; i<rowPanel.getComponents().length; i++) {
+                int id = labelNumberPos(i, row, rowPanel.getComponents().length);
+                if(id > -1){
+                    println("id: " + id);
+                    if(checks.get(id) == true){
+                        setChecked((JPanel)rowPanel.getComponents()[i], row.get(id));
+                    }else{
+                        setUnchecked((JPanel)rowPanel.getComponents()[i], row.get(id));
+                    }
+                }
+            }
+        }
+
+        // Vertical
+        {
+            List<Boolean> checks = checked._2;
+            Component[] comps = upColumn.getComponents();
+            JPanel columnPanel = (JPanel)comps[p.x];
+            List<Integer> column = picross.up.get(p.x);
+
+            for (int i=0; i<columnPanel.getComponents().length; i++) {
+                int id = labelNumberPos(i, column, columnPanel.getComponents().length);
+                if(id > -1){
+                    if(checks.get(id) == true){
+                        setChecked((JPanel)columnPanel.getComponents()[i], column.get(id));
+                    }else{
+                        setUnchecked((JPanel)columnPanel.getComponents()[i], column.get(id));
+                    }
+                }
+            }
+        }
+    }
+
     protected void setCellImage(int index, PixelType type){
         JPanel cell = cells.get(index);
         cell.removeAll();
@@ -677,35 +729,23 @@ public class PicrossEditor {
             cell.revalidate();
         }
 
-
-        // Point p = calcPositionFromIndex(index);
-        // Tuple2<List<Boolean>,List<Boolean>> checked = progress.checkNumbers(p.x, p.y);
-        // if(checked._1.contains(true)){ // Horizontai
-        //     List<Boolean> checks = checked._1;
-        //     Component[] comps = leftColumn.getComponents();
-        //     JPanel rowPanel = (JPanel)comps[p.y];
-        //     for (int i=0; i<rowPanel.getComponents().length; i++) {
-        //         if(checks.get(i) == true){
-        //             // setChecked(comps[p.y][i]);
-        //         }else{
-        //             // setUnchecked(comps[p.y][i]);
-        //         }
-        //     }
-        // }
-        // if(checked._2.contains(true)){ // Vertical
-        
-        // }
+        attachCheckMarks(index);
 
         if(progress.checkFinished()){
             finish();
         }
     }
 
-    protected JLabel leftNumberLabel(int index, int rowIndex, int max){
-        List<Integer> row = picross.left.get(rowIndex);
-        int len = row.size();
+    protected int labelNumberPos(int index, List<Integer> row_or_column, int max){
+        int len = row_or_column.size();
         int spaces = max - len;
         int id = index - spaces;
+        return id;
+    }
+
+    protected JLabel leftNumberLabel(int index, int rowIndex, int max){
+        List<Integer> row = picross.left.get(rowIndex);
+        int id = labelNumberPos(index, row, max);
 
         if(id < 0){
             return new JLabel();
@@ -721,9 +761,7 @@ public class PicrossEditor {
 
     protected JLabel upNumberLabel(int index, int columnIndex, int max){
         List<Integer> column = picross.up.get(columnIndex);
-        int len = column.size();
-        int spaces = max - len;
-        int id = index - spaces;
+        int id = labelNumberPos(index, column, max);
 
         if(id < 0){
             return new JLabel();
