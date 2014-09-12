@@ -674,8 +674,10 @@ public class PicrossEditor {
         BufferedImage img = ImageUtil.checkedNumberImage(n);
         if(img == null){
             numberCell.add(new JLabel(String.valueOf(n)));
+            numberCell.revalidate();
         }else{
             numberCell.add(new JLabel(new ImageIcon(img)));
+            numberCell.revalidate();
         }
     }
 
@@ -684,8 +686,10 @@ public class PicrossEditor {
         BufferedImage img = ImageUtil.numberImage(n);
         if(img == null){
             numberCell.add(new JLabel(String.valueOf(n)));
+            numberCell.revalidate();
         }else{
             numberCell.add(new JLabel(new ImageIcon(img)));
+            numberCell.revalidate();
         }
     }
 
